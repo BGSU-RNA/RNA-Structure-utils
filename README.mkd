@@ -1,0 +1,8 @@
+RNA Structure
+=============
+
+Some tools to parse RNA Structure annotations.
+
+Author
+======
+Blake Sweeney <bsweene@bgsu.edu>
