@@ -5,7 +5,7 @@ setup(
     version='0.0.1',
     author='Blake A. Sweeney',
     author_email='bsweene@bgsu.edu',
-    packages=['rnastructure', 'rnastructure.test'],
+    packages=['rnastructure'],
     url='',
     license='LICENSE.txt',
     description='Some tools to parse RNA Structure',
