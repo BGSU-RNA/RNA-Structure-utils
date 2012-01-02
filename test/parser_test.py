@@ -49,6 +49,10 @@ class NestedTestDBPParser(unittest.TestCase):
         ans = [([0, 1, 2,], [36, 37, 38])]
         self.assertEqual(self.loops['internal'], ans)
 
+    def test_junction_loops(self):
+        ans = [([5, 6], [17, 18, 19], [31, 32, 33])]
+        self.assertEqual(self.loops['junction'], ans)
+
     def test_extract_hairpins(self):
         ans = ['uuuu', 'uuu']
         self.assertEqual(self.sequences['hairpins'], ans)
@@ -56,3 +60,7 @@ class NestedTestDBPParser(unittest.TestCase):
     def test_extract_loops(self):
         ans = ['aaa*ttt']
         self.assertEqual(self.sequences['internal'], ans)
+
+    def test_extract_junction(self):
+        ans = ['aa*ttt*ttt']
+        self.assertEqual(self.sequences['junction'], ans)
