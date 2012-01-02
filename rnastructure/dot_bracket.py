@@ -11,13 +11,9 @@ class Parser(object):
         self.loops = {'hairpins': [], 'internal': []}
         self._len = len(structure)
 
-        print(structure)
         pairs = self.__map_relations(structure)
-        print(pairs)
         node = self.__convert(pairs, Node())
-        print(node)
         self.__find_loops(node)
-        print(self.loops)
 
     def __map_relations(self, structure):
         stack = []
@@ -42,7 +38,6 @@ class Parser(object):
         left = list(left)
         [node.add(l[-1]) for (_, l) in left]
 
-        print('pairs', pairs)
         start = 0
         if left:
             start = left[-1][0] + 1
@@ -50,11 +45,7 @@ class Parser(object):
             end = start + pairs[start][0]
             node.add(self.__convert(pairs[(start + 1):end], Node()))
             while start <= end:
-            # for i in range(pairs[start][0]):
                 start = start + 1
-
-        print('start', start)
-        print('rest', pairs[start:])
 
         self.__convert(pairs[start:], node)
         # [node.add(r[-1]) for r in pairs[start:] if not r[0]]
@@ -64,11 +55,9 @@ class Parser(object):
     def __find_loops(self, node):
         loop = node.get_loop()
         if len(loop) == 1:
-            print('hairpin', loop)
             self.loops['hairpins'].append(loop[0])
         else:
             if len(loop) == 2:
-                print('internal', loop)
                 self.loops['internal'].append(loop)
             [self.__find_loops(n) for n in node if isinstance(n, Node)]
 
@@ -77,12 +66,20 @@ class Parser(object):
             msg = "Bad sequence length of dotbracket, given {0} expected {1}"
             raise ValueError(msg.format(len(sequence), len(self)))
 
+        def seq(parts, join_str='*'):
+            if isinstance(parts[0], list):
+                return join_str.join(map(lambda p: seq(p, ''), parts))
+            return join_str.join(map(lambda p: sequence[p], parts))
+
         ranges = {}
         for name, total in self.loops.iteritems():
             ranges[name] = []
             for positions in total:
-                seq = ''.join(map(lambda v: sequence[v], positions))
-                ranges[name].append(seq)
+                ch = '*'
+                if name == 'hairpins':
+                    ch = ''
+                loop_sequence = seq(positions, ch)
+                ranges[name].append(loop_sequence)
         return ranges
 
     def __len__(self):

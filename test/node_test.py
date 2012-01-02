@@ -1,5 +1,5 @@
 import unittest
-from rnastructure import dot_bracket_parser as dbp
+from rnastructure import dot_bracket as dbp
 
 
 class NodeTest(unittest.TestCase):

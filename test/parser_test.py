@@ -1,5 +1,5 @@
 import unittest
-from rnastructure import dot_bracket_parser as dbp
+from rnastructure import dot_bracket as dbp
 
 
 class OuterLoopTest(unittest.TestCase):
@@ -7,8 +7,6 @@ class OuterLoopTest(unittest.TestCase):
         self.structure = "...((..((..))....)).."
         self.parser = dbp.Parser(self.structure)
         self.loops = self.parser.loops
-        # self.sequences = self.parser.parse("...((..((..))....))..")
-        # self.sequences = self.parser.parse("aaaccaaccaaggttttggtt")
 
     def test_hairpins(self):
         ans = [(9, 10)]
@@ -41,6 +39,15 @@ class NestedTestDBPParser(unittest.TestCase):
         self.structure = "...((..(((....)))...((((...))))...))..."
         self.parser = dbp.Parser(self.structure)
         self.loops = self.parser.loops
+        self.sequences = self.parser.parse("aaaccaacccuuuugggtttccccuuuggggtttggttt")
+
+    def test_extract_hairpins(self):
+        ans = ['uuuu', 'uuu']
+        self.assertEqual(self.sequences['hairpins'], ans)
+
+    def test_extract_loops(self):
+        ans = ['aaa*ttt']
+        self.assertEqual(self.sequences['internal'], ans)
 
     def test_hairpins(self):
         ans = [(10, 11, 12, 13), (24, 25, 26)]
