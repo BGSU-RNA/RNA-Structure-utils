@@ -8,7 +8,7 @@ class Parser(object):
     """
 
     def __init__(self, structure):
-        self.loops = {'hairpins': [], 'internal': []}
+        self.loops = {'hairpins': [], 'internal': [], 'junction': []}
         self._len = len(structure)
 
         pairs = self.__map_relations(structure)
@@ -54,12 +54,14 @@ class Parser(object):
 
     def __find_loops(self, node):
         loop = node.get_loop()
-        if len(loop) == 1:
+        if loop and len(loop) == 1:
             self.loops['hairpins'].append(loop[0])
-        else:
+        elif loop:
             if len(loop) == 2:
                 self.loops['internal'].append(loop)
-            [self.__find_loops(n) for n in node if isinstance(n, Node)]
+            else:
+                self.loops['junction'].append(loop)
+        [self.__find_loops(n) for n in node if isinstance(n, Node)]
 
     def parse(self, sequence):
         if len(self) != len(sequence):
@@ -94,19 +96,17 @@ class Node(object):
         self._components.append(value)
 
     def get_loop(self):
-        def take_loop(it):
-            return takewhile(lambda c: not isinstance(c, Node), it)
-        left = list(take_loop(self))
+        loop = [[]]
+        for (i, entry) in enumerate(self):
+            if isinstance(entry, Node):
+                if loop[-1]:
+                    loop.append([])
+            else:
+                loop[-1].append(entry)
 
-        if left == self._components:
-            return [tuple(self._components)]
-        else:
-            right = list(take_loop(reversed(self._components)))
-            if right:
-                right.reverse()
-                return tuple([left, right])
-
-        return ()
+        if loop[0] == []:
+            return tuple()
+        return tuple(loop)
 
     def __iter__(self):
         return iter(self._components)

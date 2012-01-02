@@ -9,7 +9,7 @@ class OuterLoopTest(unittest.TestCase):
         self.loops = self.parser.loops
 
     def test_hairpins(self):
-        ans = [(9, 10)]
+        ans = [([9, 10])]
         self.assertEqual(self.loops['hairpins'], ans)
 
     def test_loops(self):
@@ -25,11 +25,11 @@ class SimpleTestDBPParser(unittest.TestCase):
         self.loops = self.parser.loops
 
     def test_hairpins(self):
-        ans = [(6, 7), (20, 21, 22)]
+        ans = [([6, 7]), ([20, 21, 22])]
         self.assertEqual(self.loops['hairpins'], ans)
 
     def test_internal(self):
-        ans = [([2, 3], [10, 11, 12, 13])]
+        ans = [([16, 17], []), ([2, 3], [10, 11, 12, 13])]
         self.assertEqual(self.loops['internal'], ans)
 
 
@@ -41,6 +41,14 @@ class NestedTestDBPParser(unittest.TestCase):
         self.loops = self.parser.loops
         self.sequences = self.parser.parse("aaaccaacccuuuugggtttccccuuuggggtttggttt")
 
+    def test_hairpins(self):
+        ans = [([10, 11, 12, 13]), ([24, 25, 26])]
+        self.assertEqual(self.loops['hairpins'], ans)
+
+    def test_internal_loops(self):
+        ans = [([0, 1, 2,], [36, 37, 38])]
+        self.assertEqual(self.loops['internal'], ans)
+
     def test_extract_hairpins(self):
         ans = ['uuuu', 'uuu']
         self.assertEqual(self.sequences['hairpins'], ans)
@@ -48,7 +56,3 @@ class NestedTestDBPParser(unittest.TestCase):
     def test_extract_loops(self):
         ans = ['aaa*ttt']
         self.assertEqual(self.sequences['internal'], ans)
-
-    def test_hairpins(self):
-        ans = [(10, 11, 12, 13), (24, 25, 26)]
-        self.assertEqual(self.loops['hairpins'], ans)
