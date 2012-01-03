@@ -11,5 +11,6 @@ setup(
     description='Some tools to parse RNA Structure',
     long_description=open('README.mkd').read(),
     install_requires=[
+      'biopython >=1.58'
     ],
 )
