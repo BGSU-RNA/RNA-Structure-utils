@@ -8,7 +8,8 @@ class Parser(object):
     """
 
     def __init__(self, structure):
-        self.loops = {'hairpins': [], 'internal': [], 'junction': []}
+        self.loops = {'hairpins': [], 'internal': [], 'junction': [],
+                      'pseudoknot': []}
         self._len = len(structure)
 
         pairs = self.__map_relations(structure)
@@ -16,17 +17,24 @@ class Parser(object):
         self.__find_loops(node)
 
     def __map_relations(self, structure):
-        stack = []
+        helix_stack = []
+        knot_stack = []
         pairs = [False] * len(structure)
         for index, char in enumerate(structure):
             if char == '(':
-                stack.append(index)
+                helix_stack.append(index)
             elif char == ')':
-                left = stack.pop()
+                left = helix_stack.pop()
                 pairs[left] = (index - left, '(', left)
                 pairs[index] = (left - index, ')', index)
             elif char == '.':
                 pairs[index] = (False, '.', index)
+            elif char == '{':
+                knot_stack.append(index)
+            elif char == '}':
+                left = knot_stack.pop()
+                pairs[left] = (False, '{', left)
+                pairs[index] = (False, '}', index)
             else:
                 raise ValueError("Unknown character: '{0}'".format(char))
         return pairs
@@ -36,24 +44,23 @@ class Parser(object):
             return node
         left = takewhile(lambda (_, p): not p[0], enumerate(pairs))
         left = list(left)
-        [node.add(l[-1]) for (_, l) in left]
+        [node.append((l[1], l[-1])) for (_, l) in left]
 
         start = 0
         if left:
             start = left[-1][0] + 1
         if start < len(pairs):
             end = start + pairs[start][0]
-            node.add(self.__convert(pairs[(start + 1):end], Node()))
+            node.append(self.__convert(pairs[(start + 1):end], Node()))
             while start <= end:
                 start = start + 1
 
         self.__convert(pairs[start:], node)
-        # [node.add(r[-1]) for r in pairs[start:] if not r[0]]
 
         return node
 
     def __find_loops(self, node):
-        loop = node.get_loop()
+        loop = node.loop()
         if loop and len(loop) == 1:
             self.loops['hairpins'].append(loop[0])
         elif loop:
@@ -61,6 +68,10 @@ class Parser(object):
                 self.loops['internal'].append(loop)
             else:
                 self.loops['junction'].append(loop)
+
+        knot = node.pseudoknot()
+        if knot:
+            self.loops['pseudoknot'].append(knot)
         [self.__find_loops(n) for n in node if isinstance(n, Node)]
 
     def parse(self, sequence):
@@ -88,31 +99,22 @@ class Parser(object):
         return self._len
 
 
-class Node(object):
-    def __init__(self):
-        self._components = []
-
-    def add(self, value):
-        self._components.append(value)
-
-    def get_loop(self):
-        loop = [[]]
+class Node(list):
+    def __find(self, fn):
+        result = [[]]
         for (i, entry) in enumerate(self):
             if isinstance(entry, Node):
-                if loop[-1]:
-                    loop.append([])
+                if result[-1]:
+                    result.append([])
             else:
-                loop[-1].append(entry)
-
-        if loop[0] == []:
+                if fn(entry):
+                    result[-1].append(entry[1])
+        if result[0] == []:
             return tuple()
-        return tuple(loop)
+        return tuple(result)
 
-    def __iter__(self):
-        return iter(self._components)
+    def pseudoknot(self):
+        return self.__find(lambda (c, i): c == '{' or c == '}')
 
-    def __len__(self):
-        return len(self._components)
-
-    def __getitem__(self, index):
-        return self._components[index]
+    def loop(self):
+        return self.__find(lambda (c, i): c == '.')
