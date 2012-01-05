@@ -64,3 +64,6 @@ class NestedTestDBPParser(unittest.TestCase):
     def test_extract_junction(self):
         ans = ['aa*ttt*ttt']
         self.assertEqual(self.sequences['junction'], ans)
+
+
+# class PseudoKnotTest(unittest.TestCase):
