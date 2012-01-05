@@ -66,4 +66,24 @@ class NestedTestDBPParser(unittest.TestCase):
         self.assertEqual(self.sequences['junction'], ans)
 
 
-# class PseudoKnotTest(unittest.TestCase):
+class PseudoKnotTest(unittest.TestCase):
+    def setUp(self):
+        self.structure = ".((.{{..((..))..((..))...}}..))."
+        self.parser = dbp.Parser(self.structure)
+        self.loops = self.parser.loops
+
+    def test_pseudoknots(self):
+        ans = [([4, 5], [25, 26])]
+        self.assertEqual(self.loops['pseudoknot'], ans)
+
+    def test_hairpins(self):
+        ans = [([10, 11]), ([18, 19])]
+        self.assertEqual(self.loops['hairpins'], ans)
+
+    def test_internal_loops(self):
+        ans = [([0], [31])]
+        self.assertEqual(self.loops['internal'], ans)
+    
+    def test_junction_loops(self):
+        ans = [([3, 6, 7], [14, 15], [22, 23, 24, 27, 28])]
+        self.assertEqual(self.loops['junction'], ans)

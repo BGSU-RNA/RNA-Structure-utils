@@ -8,7 +8,8 @@ class Parser(object):
     """
 
     def __init__(self, structure):
-        self.loops = {'hairpins': [], 'internal': [], 'junction': []}
+        self.loops = {'hairpins': [], 'internal': [], 'junction': [],
+                      'pseudoknot': []}
         self._len = len(structure)
 
         pairs = self.__map_relations(structure)
@@ -32,8 +33,8 @@ class Parser(object):
                 knot_stack.append(index)
             elif char == '}':
                 left = knot_stack.pop()
-                pairs[left] = (index - left, '{', left)
-                pairs[index] = (left - index, '}', index)
+                pairs[left] = (False, '{', left)
+                pairs[index] = (False, '}', index)
             else:
                 raise ValueError("Unknown character: '{0}'".format(char))
         return pairs
@@ -43,7 +44,7 @@ class Parser(object):
             return node
         left = takewhile(lambda (_, p): not p[0], enumerate(pairs))
         left = list(left)
-        [node.append(l[-1]) for (_, l) in left]
+        [node.append((l[1], l[-1])) for (_, l) in left]
 
         start = 0
         if left:
@@ -67,6 +68,10 @@ class Parser(object):
                 self.loops['internal'].append(loop)
             else:
                 self.loops['junction'].append(loop)
+
+        knot = node.pseudoknot()
+        if knot:
+            self.loops['pseudoknot'].append(knot)
         [self.__find_loops(n) for n in node if isinstance(n, Node)]
 
     def parse(self, sequence):
@@ -95,14 +100,21 @@ class Parser(object):
 
 
 class Node(list):
-    def loop(self):
-        loop = [[]]
+    def __find(self, fn):
+        result = [[]]
         for (i, entry) in enumerate(self):
             if isinstance(entry, Node):
-                if loop[-1]:
-                    loop.append([])
+                if result[-1]:
+                    result.append([])
             else:
-               loop[-1].append(entry)
-        if loop[0] == []:
+                if fn(entry):
+                    result[-1].append(entry[1])
+        if result[0] == []:
             return tuple()
-        return tuple(loop)
+        return tuple(result)
+
+    def pseudoknot(self):
+        return self.__find(lambda (c, i): c == '{' or c == '}')
+
+    def loop(self):
+        return self.__find(lambda (c, i): c == '.')
