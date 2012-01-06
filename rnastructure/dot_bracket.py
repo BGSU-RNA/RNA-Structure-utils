@@ -3,12 +3,16 @@ from itertools import takewhile
 
 class Parser(object):
     """
-    A Simple class to parse 2D structures.
-    This cannot handle pseudoknots.
+      A Simple class to parse 2D structures.
     """
 
     def __init__(self, structure):
-        self.loops = {'hairpins': [], 'internal': [], 'junction': []}
+        """
+          Construct a new Parser object with the given structure. The structure
+          should be a string in dot bracket notation with possible pseudoknots.
+        """
+        self.loops = {'hairpins': [], 'internal': [], 'junction': [],
+                      'pseudoknot': []}
         self._len = len(structure)
 
         pairs = self.__map_relations(structure)
@@ -16,19 +20,26 @@ class Parser(object):
         self.__find_loops(node)
 
     def __map_relations(self, structure):
-        stack = []
+        helix_stack = []
+        knot_stack = []
         pairs = [False] * len(structure)
         for index, char in enumerate(structure):
             if char == '(':
-                stack.append(index)
+                helix_stack.append(index)
             elif char == ')':
-                left = stack.pop()
+                left = helix_stack.pop()
                 pairs[left] = (index - left, '(', left)
                 pairs[index] = (left - index, ')', index)
             elif char == '.':
                 pairs[index] = (False, '.', index)
+            elif char == '{':
+                knot_stack.append(index)
+            elif char == '}':
+                left = knot_stack.pop()
+                pairs[left] = (False, '{', left)
+                pairs[index] = (False, '}', index)
             else:
-                raise ValueError("Unknown character: '{0}'".format(char))
+                raise ValueError("Unknown character: '%s'" % char)
         return pairs
 
     def __convert(self, pairs, node):
@@ -36,24 +47,24 @@ class Parser(object):
             return node
         left = takewhile(lambda (_, p): not p[0], enumerate(pairs))
         left = list(left)
-        [node.add(l[-1]) for (_, l) in left]
+        for (_, entry) in left:
+            node.append((entry[1], entry[-1]))
 
         start = 0
         if left:
             start = left[-1][0] + 1
         if start < len(pairs):
             end = start + pairs[start][0]
-            node.add(self.__convert(pairs[(start + 1):end], Node()))
+            node.append(self.__convert(pairs[(start + 1):end], Node()))
             while start <= end:
                 start = start + 1
 
         self.__convert(pairs[start:], node)
-        # [node.add(r[-1]) for r in pairs[start:] if not r[0]]
 
         return node
 
     def __find_loops(self, node):
-        loop = node.get_loop()
+        loop = node.loop()
         if loop and len(loop) == 1:
             self.loops['hairpins'].append(loop[0])
         elif loop:
@@ -61,12 +72,19 @@ class Parser(object):
                 self.loops['internal'].append(loop)
             else:
                 self.loops['junction'].append(loop)
-        [self.__find_loops(n) for n in node if isinstance(n, Node)]
+
+        knot = node.pseudoknot()
+        if knot:
+            self.loops['pseudoknot'].append(knot)
+
+        for entry in node:
+            if isinstance(entry, Node):
+                self.__find_loops(entry)
 
     def parse(self, sequence):
         if len(self) != len(sequence):
-            msg = "Bad sequence length of dotbracket, given {0} expected {1}"
-            raise ValueError(msg.format(len(sequence), len(self)))
+            msg = "Bad sequence length of dotbracket, given '%s' expected '%s'"
+            raise ValueError(msg % (len(sequence), len(self)))
 
         def seq(parts, join_str='*'):
             if isinstance(parts[0], list):
@@ -77,10 +95,10 @@ class Parser(object):
         for name, total in self.loops.iteritems():
             ranges[name] = []
             for positions in total:
-                ch = '*'
+                char = '*'
                 if name == 'hairpins':
-                    ch = ''
-                loop_sequence = seq(positions, ch)
+                    char = ''
+                loop_sequence = seq(positions, char)
                 ranges[name].append(loop_sequence)
         return ranges
 
@@ -88,31 +106,34 @@ class Parser(object):
         return self._len
 
 
-class Node(object):
-    def __init__(self):
-        self._components = []
-
-    def add(self, value):
-        self._components.append(value)
-
-    def get_loop(self):
-        loop = [[]]
-        for (i, entry) in enumerate(self):
+class Node(list):
+    def __find(self, func):
+        result = [[]]
+        for (_, entry) in enumerate(self):
             if isinstance(entry, Node):
-                if loop[-1]:
-                    loop.append([])
+                if result[-1]:
+                    result.append([])
             else:
-                loop[-1].append(entry)
-
-        if loop[0] == []:
+                if func(entry):
+                    result[-1].append(entry[1])
+        if not result[0]:
             return tuple()
-        return tuple(loop)
+        return tuple(result)
 
-    def __iter__(self):
-        return iter(self._components)
+    def pseudoknot(self):
+        """
+          Find the pseudoknot, if any, in this node. Pseudoknots entries in the
+          node with either '{' or '}' characters. If a pseudoknot is found it
+          will be returned as tuple of the form (left_half, right_half). If no
+          pseudoknot is found then an empty tuple is returned.
+        """
+        return self.__find(lambda (c, i): c == '{' or c == '}')
 
-    def __len__(self):
-        return len(self._components)
-
-    def __getitem__(self, index):
-        return self._components[index]
+    def loop(self):
+        """
+          Find the loop in this node if any. Nodes are entries in the node with
+          '.' character. If a loop is found it will be returned as a tuple of
+          the form (first, second, ...). If no loop is found an empty tuple is
+          returned.
+        """
+        return self.__find(lambda (c, i): c == '.')
