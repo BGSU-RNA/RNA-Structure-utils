@@ -3,11 +3,14 @@ from itertools import takewhile
 
 class Parser(object):
     """
-    A Simple class to parse 2D structures.
-    This cannot handle pseudoknots.
+      A Simple class to parse 2D structures.
     """
 
     def __init__(self, structure):
+        """
+          Construct a new Parser object with the given structure. The structure
+          should be a string in dot bracket notation with possible pseudoknots.
+        """
         self.loops = {'hairpins': [], 'internal': [], 'junction': [],
                       'pseudoknot': []}
         self._len = len(structure)
@@ -36,7 +39,7 @@ class Parser(object):
                 pairs[left] = (False, '{', left)
                 pairs[index] = (False, '}', index)
             else:
-                raise ValueError("Unknown character: '{0}'".format(char))
+                raise ValueError("Unknown character: '%s'" % char)
         return pairs
 
     def __convert(self, pairs, node):
@@ -44,7 +47,8 @@ class Parser(object):
             return node
         left = takewhile(lambda (_, p): not p[0], enumerate(pairs))
         left = list(left)
-        [node.append((l[1], l[-1])) for (_, l) in left]
+        for (_, entry) in left:
+            node.append((entry[1], entry[-1]))
 
         start = 0
         if left:
@@ -72,12 +76,15 @@ class Parser(object):
         knot = node.pseudoknot()
         if knot:
             self.loops['pseudoknot'].append(knot)
-        [self.__find_loops(n) for n in node if isinstance(n, Node)]
+
+        for entry in node:
+            if isinstance(entry, Node):
+                self.__find_loops(entry)
 
     def parse(self, sequence):
         if len(self) != len(sequence):
-            msg = "Bad sequence length of dotbracket, given {0} expected {1}"
-            raise ValueError(msg.format(len(sequence), len(self)))
+            msg = "Bad sequence length of dotbracket, given '%s' expected '%s'"
+            raise ValueError(msg % (len(sequence), len(self)))
 
         def seq(parts, join_str='*'):
             if isinstance(parts[0], list):
@@ -88,10 +95,10 @@ class Parser(object):
         for name, total in self.loops.iteritems():
             ranges[name] = []
             for positions in total:
-                ch = '*'
+                char = '*'
                 if name == 'hairpins':
-                    ch = ''
-                loop_sequence = seq(positions, ch)
+                    char = ''
+                loop_sequence = seq(positions, char)
                 ranges[name].append(loop_sequence)
         return ranges
 
@@ -100,21 +107,33 @@ class Parser(object):
 
 
 class Node(list):
-    def __find(self, fn):
+    def __find(self, func):
         result = [[]]
-        for (i, entry) in enumerate(self):
+        for (_, entry) in enumerate(self):
             if isinstance(entry, Node):
                 if result[-1]:
                     result.append([])
             else:
-                if fn(entry):
+                if func(entry):
                     result[-1].append(entry[1])
-        if result[0] == []:
+        if not result[0]:
             return tuple()
         return tuple(result)
 
     def pseudoknot(self):
+        """
+          Find the pseudoknot, if any, in this node. Pseudoknots entries in the
+          node with either '{' or '}' characters. If a pseudoknot is found it
+          will be returned as tuple of the form (left_half, right_half). If no
+          pseudoknot is found then an empty tuple is returned.
+        """
         return self.__find(lambda (c, i): c == '{' or c == '}')
 
     def loop(self):
+        """
+          Find the loop in this node if any. Nodes are entries in the node with
+          '.' character. If a loop is found it will be returned as a tuple of
+          the form (first, second, ...). If no loop is found an empty tuple is
+          returned.
+        """
         return self.__find(lambda (c, i): c == '.')
