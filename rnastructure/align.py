@@ -2,6 +2,8 @@ from suds import null
 from suds.client import Client
 from Bio import pairwise2 as nw
 
+from rnastructure.util import correlator as cor
+
 
 class Align(object):
     """Class to align RNA sequences. """
@@ -34,16 +36,6 @@ class Align(object):
         alignments = nw.align.globalms(self.reference, seq, self.match,
                                        self.mismatch, self.open, self.extend)
         (ref, aligned, score, mis, mat) = alignments[0]
-        correlations = self.correlate(ref, aligned)
+        correlations = cor.correlate(ref, aligned)
         return {'reference': ref, 'sequence': aligned,
                 'score': score, 'correlations': correlations}
-
-    def correlate(self, reference, sequence):
-        correlations = []
-        for (i, char) in enumerate(reference):
-            seq_char = sequence[i]
-            if char != '-' and seq_char != '-':
-                ref_pos = i - reference[:i].count('-')
-                seq_pos = i - sequence[:i].count('-')
-                correlations.append((ref_pos, seq_pos))
-        return correlations

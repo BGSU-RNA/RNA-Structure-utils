@@ -1,4 +1,5 @@
 import unittest
+
 from rnastructure.align import Align
 
 
@@ -14,10 +15,6 @@ class TrivalAlignTest(unittest.TestCase):
     def test_seq_align(self):
         self.assertEqual(self.result['sequence'], self.ref)
 
-    def test_correlate(self):
-        ans = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
-        self.assertEqual(self.result['correlations'], ans)
-
 
 class SimpleAlignTest(unittest.TestCase):
     def setUp(self):
@@ -31,7 +28,3 @@ class SimpleAlignTest(unittest.TestCase):
 
     def test_seq_align(self):
         self.assertEqual(self.result['sequence'], 'GGA--CC')
-
-    def test_correlate(self):
-        ans = [(0, 2), (3, 3), (4, 4)]
-        self.assertEqual(self.result['correlations'], ans)
