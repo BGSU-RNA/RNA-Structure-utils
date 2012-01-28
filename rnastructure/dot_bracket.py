@@ -11,7 +11,7 @@ class Parser(object):
           Construct a new Parser object with the given structure. The structure
           should be a string in dot bracket notation with possible pseudoknots.
         """
-        self.loops = {'hairpins': [], 'internal': [], 'junction': [],
+        self._loops = {'hairpins': [], 'internal': [], 'junction': [],
                       'pseudoknot': []}
         self._len = len(structure)
 
@@ -66,16 +66,16 @@ class Parser(object):
     def __find_loops(self, node):
         loop = node.loop()
         if loop and len(loop) == 1:
-            self.loops['hairpins'].append(loop[0])
+            self._loops['hairpins'].append(loop[0])
         elif loop:
             if len(loop) == 2:
-                self.loops['internal'].append(loop)
+                self._loops['internal'].append(loop)
             else:
-                self.loops['junction'].append(loop)
+                self._loops['junction'].append(loop)
 
         knot = node.pseudoknot()
         if knot:
-            self.loops['pseudoknot'].append(knot)
+            self._loops['pseudoknot'].append(knot)
 
         for entry in node:
             if isinstance(entry, Node):
@@ -92,7 +92,7 @@ class Parser(object):
             return join_str.join(map(lambda p: sequence[p], parts))
 
         ranges = {}
-        for name, total in self.loops.iteritems():
+        for name, total in self._loops.iteritems():
             ranges[name] = []
             for positions in total:
                 char = '*'
@@ -101,6 +101,33 @@ class Parser(object):
                 loop_sequence = seq(positions, char)
                 ranges[name].append(loop_sequence)
         return ranges
+
+    def loops(self, flanking=False):
+        def add_flank(part):
+            if not part:
+                return part
+            flank = list(part)
+            left = part[0]
+            right = part[-1]
+            if left > 0:
+                flank.insert(0, left - 1)
+            if right + 1 < len(self):
+                flank.append(right + 1)
+            return flank
+
+        if not flanking:
+            return self._loops
+
+        all_loops = {}
+        for name, loops in self._loops.items():
+            all_loops[name] = []
+            for loop in loops:
+                if name == "hairpins":
+                    all_loops[name].append(add_flank(loop))
+                else:
+                    flank = [add_flank(l) for l in loop]
+                    all_loops[name].append(tuple(flank))
+        return all_loops
 
     def __len__(self):
         return self._len

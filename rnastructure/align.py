@@ -24,6 +24,7 @@ class Align(object):
         alignments = nw.align.globalms(self.reference, sequence, self.match,
                                        self.mismatch, self.open, self.extend)
         (ref, aligned, score, mis, mat) = alignments[0]
-        correlations = cor.correlate(ref, aligned)
+        # correlations = cor.correlate(ref, aligned)
+        correlations = []
         return {'reference': ref, 'sequence': aligned,
                 'score': score, 'correlations': correlations}
