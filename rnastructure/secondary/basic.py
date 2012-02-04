@@ -5,10 +5,7 @@ class Basic(object):
         self._pairs = pairs
         self._len = len(pairs)
         self._tree = Node((None, self._len))
-        self._loops = {'hairpin': [],
-                       'internal': [],
-                       'junction': [],
-                      'pseudoknot': []}
+        self._loops = {}
         self.__as_tree()
         self.__find_loops()
 
@@ -96,6 +93,15 @@ class Node(object):
         if self.children:
             return self.children[0]
         return Node((None, None))
+
+    def type(self):
+        if not self.children:
+            return 'hairpin'
+        if len(self.children) == 1:
+            return 'internal'
+        if len(self.children) > 1:
+            return 'junction'
+        return None
 
     def add_to_tree(self, child):
         biggest = self.largest()
