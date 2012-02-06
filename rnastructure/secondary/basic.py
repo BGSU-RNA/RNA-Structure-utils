@@ -1,20 +1,17 @@
 
 
-class Basic(object):
+class Parser(object):
     def __init__(self, pairs):
         self._pairs = pairs
         self._len = len(pairs)
         self._tree = Node((None, self._len))
         self._loops = {}
         self.__as_tree()
-        self.__find_loops()
+        self.__find_loops(self._tree)
 
     def __as_tree(self):
-        """Create the parse tree for this 2D structure.
-        """
         stack = []
-        for i in range(self._len):
-            pair = self._pairs[i]
+        for i, pair in enumerate(self._pairs):
             if i < pair:
                 stack.append((i, pair))
             elif None < pair < i:
@@ -28,12 +25,18 @@ class Basic(object):
                 node = Node(pair)
                 self._tree.add_to_tree(node)
 
-    def __find_loops(self):
-        pass
+    def __find_loops(self, node):
+        loop_type = node.loop_type()
+        if loop_type:
+            if loop_type not in self._loops:
+                self._loops[loop_type] = []
+            self._loops[loop_type].append(node.unpaired())
+        for child in node.children:
+            self.__find_loops(child)
 
     def parse(self, sequence):
         if len(self) != len(sequence):
-            msg = "Bad sequence length of dotbracket, given '%s' expected '%s'"
+            msg = "Sequence has wrong size, given '%s' expected '%s'"
             raise ValueError(msg % (len(sequence), len(self)))
 
         def seq(parts, join_str='*'):
@@ -91,17 +94,46 @@ class Node(object):
 
     def largest(self):
         if self.children:
-            return self.children[0]
+            return self.children[-1]
         return Node((None, None))
 
-    def type(self):
+    def loop_type(self):
+        if not self.unpaired():
+            return None
         if not self.children:
             return 'hairpin'
         if len(self.children) == 1:
             return 'internal'
         if len(self.children) > 1:
             return 'junction'
-        return None
+        raise ValueError("Unknown type of loop")
+
+    def left(self):
+        if self.value[0] == None:
+            return 0
+        return self.value[0] + 1
+
+    def spans(self, flanking=False):
+        start = self.left()
+        end = self.value[1]
+        if flanking:
+            start -= 1
+            end += 1
+        return range(start, end)
+
+    def unpaired(self):
+        unpaired = []
+        left = self.left()
+        for child in self.children:
+            right = child.value[0]
+            looped = range(left, right)
+            if looped:
+                unpaired.append(looped)
+            left = child.value[1] + 1
+        last = range(left, self.value[1])
+        if last:
+          unpaired.append(last)
+        return tuple(unpaired)
 
     def add_to_tree(self, child):
         biggest = self.largest()
@@ -114,6 +146,11 @@ class Node(object):
     def add_child(self, child):
         child.parent = self
         self.children.append(child)
+
+    def print_tree(self, indent=0):
+        print(" " * indent + "Node: " + str(self.value))
+        for child in self.children:
+          child.print_tree(indent=indent+1)
 
     def __ne__(self, other):
         return self.value != other.value

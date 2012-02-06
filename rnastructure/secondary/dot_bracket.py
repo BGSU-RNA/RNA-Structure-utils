@@ -1,7 +1,7 @@
-from rnastructure.secondary.basic import Basic
+import rnastructure.secondary.basic as basic
 
 
-class Parser(Basic):
+class Parser(basic.Parser):
     """A class to parse 2D structures in dot-bracket format.
 
     The dot bracket format must be composed of <, (, [, {, ., :, }, ], ), >
@@ -18,10 +18,10 @@ class Parser(Basic):
         pseudoknots.
 
         """
-        pairs = self.pairs(structure)
+        pairs = self.__pairs(structure)
         super(Parser, self).__init__(pairs)
 
-    def pairs(self, structure):
+    def __pairs(self, structure):
         """Compute which bases are paired in the 2D structure.
         """
         helix_stack = []
