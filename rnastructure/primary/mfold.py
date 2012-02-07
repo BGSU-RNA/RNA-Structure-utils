@@ -3,6 +3,8 @@ import tempfile
 import os
 import re
 
+from rnastructure.secondary.connect import Parser as Connect
+
 
 class Mfold(object):
     def __init__(self, directory=None, name='seq_file'):
@@ -60,27 +62,17 @@ class Result(object):
         self._pairing = []
 
     def sequence(self):
-        if self._sequence:
-            return self._sequence
-        self.pairing()
+        if not self._sequence:
+            if not self._pairing:
+                self.pairing()
+            self._sequence = self._pairing.sequence
         return self._sequence
 
     def pairing(self):
-        if self._pairing:
-            return self._pairing
+        if not self._pairing:
+            file_name = self._name % "ct"
+            opened = open(file_name, 'r')
+            self._pairing = Connect(opened)
+            opened.close()
 
-        file_name = self._name % "ct"
-        sequence = []
-        for index, line in enumerate(open(file_name, 'r')):
-            if index >= 1:
-                parts = line.split("\t")
-                end = int(parts[4]) - 1
-                if end < 0:
-                    end = None
-                # TODO: Assumes file is always sorted, is it?
-                self._pairing.append(end)
-                sequence.append(parts[1])
-
-        if not self._sequence:
-            self._sequence = ''.join(sequence)
         return self._pairing

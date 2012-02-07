@@ -22,7 +22,8 @@ class BasicMfoldTest(unittest.TestCase):
         self.assertEqual(val, ans)
 
     def test_get_result_pairing(self):
-        val = self.results[0].pairing()
+        parser = self.results[0].pairing()
+        val = parser._pairs
         ans = [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, None, None,
               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
               2, 1, 0]

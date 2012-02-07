@@ -12,7 +12,7 @@ class Parser(basic.Parser):
 
     def __pairs(self, lines):
         pairs = []
-        pattern = "\A(\d+)\s+([A-Za-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\Z"
+        pattern = "\A(\d+)\s+([A-Za-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\Z"
         for line in lines:
             if re.match(pattern, line):
                 parts = line.split("\t")
