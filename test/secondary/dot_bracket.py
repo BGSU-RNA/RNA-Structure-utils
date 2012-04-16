@@ -1,6 +1,6 @@
 import unittest
 
-from rnastructure.secondary.dot_bracket import Parser
+from rnastructure.secondary.dot_bracket import Parser, Format
 
 
 class OuterLoopTest(unittest.TestCase):
@@ -132,3 +132,15 @@ class Ty1Test(unittest.TestCase):
                tuple([[590,591,592,593,594,595,596,597,598,599]])]
         ans.reverse()
         self.assertEqual(self.loops['hairpin'], ans)
+
+
+class SimpleFormatTest(unittest.TestCase):
+    def setUp(self):
+        self.structure = "...((..((..))....)).."
+        parser = Parser(self.structure)
+        self.formatter = Format(parser)
+
+    def test_format(self):
+        val = self.formatter.format()
+        self.assertEqual(val, self.structure)
+
