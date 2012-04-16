@@ -1,5 +1,9 @@
 
 
+class Format(object):
+    def __init__(self, parser):
+        self._pairs = parser._pairs
+
 class Parser(object):
     def __init__(self, pairs):
         self._pairs = pairs

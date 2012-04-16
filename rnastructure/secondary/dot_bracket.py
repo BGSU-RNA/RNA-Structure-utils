@@ -45,3 +45,17 @@ class Parser(basic.Parser):
             else:
                 raise ValueError("Unknown character: '%s'" % char)
         return pairs
+
+
+class Format(basic.Format):
+    def format(self):
+        dot_string = [None] * len(self._pairs)
+        for index, pair in enumerate(self._pairs):
+            if dot_string[index]:
+                pass
+            elif pair == None:
+                dot_string[index] = '.'
+            elif index < pair:
+                dot_string[index] = '('
+                dot_string[pair] = ')'
+        return ''.join(dot_string)
