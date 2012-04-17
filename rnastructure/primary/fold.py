@@ -6,28 +6,52 @@ import re
 from rnastructure.secondary.connect import Parser as Connect
 
 
-class Mfold(object):
+class Folder(object):
     def __init__(self, directory=None, name='seq_file'):
-        self._file_name = name
+        self._filename = name
         self._base = directory
 
-    def fold(self, sequence, options={}):
+    def fold(self, sequence, options=None):
         temp_dir = self._base
+        options = options or {}
         if not temp_dir:
             temp_dir = tempfile.mkdtemp()
         cur_dir = os.getcwd()
         os.chdir(temp_dir)
-        seq_file = open(self._file_name, 'w')
+        seq_file = open(self._filename, 'w')
         seq_file.write(">sequence\n%s\n" % sequence)
         seq_file.close()
-        args = ["mfold"]
-        options['seq'] = self._file_name
-        for key, value in options.items():
-            args.append("%s=%s" % (key.upper(), value))
+        args = [self.program]
+        args.extend(self.process_arguments(self._filename, options))
         process = Popen(args, stdout=PIPE, stderr=PIPE)
         process.wait()
         os.chdir(cur_dir)
-        return ResultSet(temp_dir, self._file_name)
+        return ResultSet(temp_dir, self._filename)
+
+
+class UNAfold(Folder):
+    program = 'UNAFold.pl'
+
+    def process_arguments(self, filename, options):
+        args = []
+        for key, value in options.items():
+            prefix = '--'
+            if len(key) == 1:
+                prefix = '-'
+            args.append('%s%s %s' % (prefix, key, value))
+        args.append(filename)
+        return args
+
+
+class Mfold(Folder):
+    program = 'mfold'
+
+    def process_arguments(self, filename, options):
+        args = []
+        options['seq'] = filename
+        for key, value in options.items():
+            args.append("%s=%s" % (key.upper(), value))
+        return args
 
 
 class ResultSet(object):
