@@ -10,6 +10,8 @@ class Format(object):
 
 class Parser(object):
     def __init__(self, pairs):
+        if not pairs:
+            raise ValueError("Must specify pairs to find loops.")
         self._pairs = pairs
         self._len = len(pairs)
         self._tree = Node((None, self._len))
