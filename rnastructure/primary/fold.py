@@ -2,14 +2,16 @@ from subprocess import Popen, PIPE
 import tempfile
 import os
 import re
+import select
 
 from rnastructure.secondary.connect import Parser as Connect
 
 
 class Folder(object):
-    def __init__(self, directory=None, name='seq_file'):
+    def __init__(self, directory=None, name='seq_file', time=120):
         self._filename = name
         self._base = directory
+        self._time = time
 
     def fold(self, sequence, options=None):
         temp_dir = self._base
@@ -24,8 +26,14 @@ class Folder(object):
         args = [self.program]
         args.extend(self.process_arguments(self._filename, options))
         process = Popen(args, stdout=PIPE, stderr=PIPE)
-        process.wait()
+        rlist, wlist, xlist = select.select([process.stderr],
+                                            [],
+                                            [process.stdout, process.stderr],
+                                            self._time)
         os.chdir(cur_dir)
+        if not rlist and not wlist and not xlist:
+            process.kill()
+            raise ValueError("Failed running: %s" % self.program)
         return ResultSet(temp_dir, self._filename)
 
 
