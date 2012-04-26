@@ -117,7 +117,8 @@ class Node(object):
                 return 'external'
             return 'internal'
         if len(self.children) > 1:
-            return 'junction'
+            return None
+            # return 'junction'
         raise ValueError("Unknown type of loop")
 
     def left(self):
