@@ -6,6 +6,7 @@ from rnastructure.secondary.basic import Parser
 class SimpleLoopTest(unittest.TestCase):
     def setUp(self):
         self.pairs = [None, None, 6, 5, None, 3, 2]
+        self.sequence = 'aacugcc'
         self.parser = Parser(self.pairs)
         self.loops = self.parser.loops()
         self.flanking = self.parser.loops(flanking=True)
@@ -14,9 +15,19 @@ class SimpleLoopTest(unittest.TestCase):
         ans = [tuple([[4]])]
         self.assertEqual(self.loops['hairpin'], ans)
 
+    def test_hairpin_sequences(self):
+        ans = ['g']
+        val = self.parser.parse(self.sequence)
+        self.assertEqual(val['hairpin'], ans)
+
     def test_flanking_hairpins(self):
         ans = [tuple([[3, 4, 5]])]
         self.assertEqual(self.flanking['hairpin'], ans)
+
+    def test_hairpin_flanking_sequences(self):
+        ans = ['ugc']
+        val = self.parser.parse(self.sequence, flanking=True)
+        self.assertEqual(val['hairpin'], ans)
 
 
 class MultiLoopTest(unittest.TestCase):
