@@ -18,73 +18,81 @@ class OuterLoopTest(unittest.TestCase):
         ans = [tuple([[8, 9, 10, 11]])]
         self.assertEqual(self.flanking['hairpin'], ans)
 
+    def test_external(self):
+        ans = [([0, 1, 2], [19, 20])]
+        self.assertEqual(self.loops['external'], ans)
+
+    def test_flanking_external(self):
+        ans = [([0, 1, 2, 3], [18, 19, 20])]
+        self.assertEqual(self.flanking['external'], ans)
+
     def test_internal(self):
-        ans = [([0, 1, 2], [19, 20]), ([5, 6], [13, 14, 15, 16])]
+        ans = [([5, 6], [13, 14, 15, 16])]
         self.assertEqual(self.loops['internal'], ans)
 
     def test_flanking_internal(self):
-        ans = [([0, 1, 2, 3], [18, 19, 20]), ([4, 5, 6, 7],
-                                              [12, 13, 14, 15, 16, 17])]
+        ans = [([4, 5, 6, 7], [12, 13, 14, 15, 16, 17])]
         self.assertEqual(self.flanking['internal'], ans)
 
 
-# class SimpleParserTest(unittest.TestCase):
-#
-#     def setUp(self):
-#         self.structure = "((..((..))....))..((...))"
-#         self.parser = Parser(self.structure)
-#         self.loops = self.parser.loops()
-#         self.flanking = self.parser.loops(flanking=True)
-#
-#     def test_hairpins(self):
-#         ans = [tuple([[6, 7]]), tuple([[20, 21, 22]])]
-#         self.assertEqual(self.loops['hairpin'], ans)
-#
-#     def test_flanking_hairpins(self):
-#         ans = [tuple([[5, 6, 7, 8]]), tuple([[19, 20, 21, 22, 23]])]
-#         self.assertEqual(self.flanking['hairpin'], ans)
-#
-#     def test_internal(self):
-#         ans = [([16, 17], []), ([2, 3], [10, 11, 12, 13])]
-#         self.assertEqual(self.loops['internal'], ans)
-#
-#     def test_flanking_internal(self):
-#         ans = [([15, 16, 17, 18], []), ([1, 2, 3, 4], [9, 10, 11, 12, 13, 14])]
-#         self.assertEqual(self.flanking['internal'], ans)
+class SimpleParserTest(unittest.TestCase):
+
+    def setUp(self):
+        self.structure = "((..((..))....))..((...))"
+        self.parser = Parser(self.structure)
+        self.loops = self.parser.loops()
+        self.flanking = self.parser.loops(flanking=True)
+
+    def test_hairpins(self):
+        ans = [tuple([[6, 7]]), tuple([[20, 21, 22]])]
+        self.assertEqual(self.loops['hairpin'], ans)
+
+    def test_flanking_hairpins(self):
+        ans = [tuple([[5, 6, 7, 8]]), tuple([[19, 20, 21, 22, 23]])]
+        self.assertEqual(self.flanking['hairpin'], ans)
+
+    def test_internal(self):
+        ans = [([2, 3], [10, 11, 12, 13])]
+        print(self.parser._tree.print_tree())
+        self.assertEqual(self.loops['internal'], ans)
+
+    def test_flanking_internal(self):
+        ans = [([1, 2, 3, 4], [9, 10, 11, 12, 13, 14])]
+        self.assertEqual(self.flanking['internal'], ans)
 
 
-# class NestedParserTest(unittest.TestCase):
-#
-#     def setUp(self):
-#         self.structure = "...((..(((....)))...((((...))))...))..."
-#         self.parser = Parser(self.structure)
-#         self.loops = self.parser.loops()
-#         seq = "aaaccaacccuuuugggtttccccuuuggggtttggttt"
-#         self.sequences = self.parser.parse(seq)
-#
-#     def test_hairpins(self):
-#         ans = [tuple([[10, 11, 12, 13]]), tuple([[24, 25, 26]])]
-#         self.assertEqual(self.loops['hairpin'], ans)
-#
-#     def test_internal_loops(self):
-#         ans = [([0, 1, 2], [36, 37, 38])]
-#         self.assertEqual(self.loops['internal'], ans)
-#
-#     def test_junction_loops(self):
-#         ans = [([5, 6], [17, 18, 19], [31, 32, 33])]
-#         self.assertEqual(self.loops['junction'], ans)
-#
-#     def test_extract_hairpins(self):
-#         ans = ['uuuu', 'uuu']
-#         self.assertEqual(self.sequences['hairpin'], ans)
-#
-#     def test_extract_loops(self):
-#         ans = ['aaa*ttt']
-#         self.assertEqual(self.sequences['internal'], ans)
-#
-#     def test_extract_junction(self):
-#         ans = ['aa*ttt*ttt']
-#         self.assertEqual(self.sequences['junction'], ans)
+class NestedParserTest(unittest.TestCase):
+
+    def setUp(self):
+        self.structure = "...((..(((....)))...((((...))))...))..."
+        self.parser = Parser(self.structure)
+        self.loops = self.parser.loops()
+        seq = "aaaccaacccuuuugggtttccccuuuggggtttggttt"
+        self.sequences = self.parser.parse(seq)
+
+    def test_hairpins(self):
+        ans = [tuple([[24, 25, 26]]), tuple([[10, 11, 12, 13]])]
+        self.assertEqual(self.loops['hairpin'], ans)
+
+    def test_external_loop(self):
+        ans = [([0, 1, 2], [36, 37, 38])]
+        self.assertEqual(self.loops['external'], ans)
+
+    def test_internal_loops(self):
+        self.assertFalse('internal' in self.loops)
+
+    # def test_junction_loops(self):
+    #     ans = [([5, 6], [17, 18, 19], [31, 32, 33])]
+    #     self.parser._tree.print_tree()
+    #     self.assertEqual(self.loops['junction'], ans)
+
+    def test_extract_hairpins(self):
+        ans = ['uuu', 'uuuu']
+        self.assertEqual(self.sequences['hairpin'], ans)
+
+    # def test_extract_junction(self):
+    #     ans = ['aa*ttt*ttt']
+    #     self.assertEqual(self.sequences['junction'], ans)
 
 
 # Commented out until I add pseudoknot parsing back in.
