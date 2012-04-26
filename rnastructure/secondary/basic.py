@@ -44,7 +44,7 @@ class Parser(object):
         for child in node.children:
             self.__find_loops(child)
 
-    def parse(self, sequence):
+    def parse(self, sequence, flanking=False):
         if len(self) != len(sequence):
             msg = "Sequence has wrong size, given '%s' expected '%s'"
             raise ValueError(msg % (len(sequence), len(self)))
@@ -55,7 +55,8 @@ class Parser(object):
             return join_str.join(map(lambda p: sequence[p], parts))
 
         ranges = {}
-        for name, total in self._loops.iteritems():
+        loops = self.loops(flanking=flanking)
+        for name, total in loops.iteritems():
             ranges[name] = []
             for positions in total:
                 char = '*'
