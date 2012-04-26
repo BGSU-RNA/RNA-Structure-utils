@@ -113,9 +113,12 @@ class Node(object):
         if not self.children:
             return 'hairpin'
         if len(self.children) == 1:
+            if self.parent == None:
+                return 'external'
             return 'internal'
         if len(self.children) > 1:
-            return 'junction'
+            return None
+            # return 'junction'
         raise ValueError("Unknown type of loop")
 
     def left(self):
@@ -142,7 +145,7 @@ class Node(object):
             left = child.value[1] + 1
         last = range(left, self.value[1])
         if last:
-          unpaired.append(last)
+            unpaired.append(last)
         return tuple(unpaired)
 
     def add_to_tree(self, child):
@@ -160,7 +163,7 @@ class Node(object):
     def print_tree(self, indent=0):
         print(" " * indent + "Node: " + str(self.value))
         for child in self.children:
-          child.print_tree(indent=indent+1)
+            child.print_tree(indent=indent+1)
 
     def __ne__(self, other):
         return self.value != other.value
@@ -178,4 +181,4 @@ class Node(object):
         return self.value < other.value
 
     def __eq__(self, other):
-        return self.value == other.value and self.children == other.children
+        return isinstance(other, Node) and self.value == other.value and self.children == other.children
