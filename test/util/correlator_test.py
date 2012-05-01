@@ -41,9 +41,9 @@ class NamedAlignedIndeciesCorrelationTest(unittest.TestCase):
         ref = 'uaag-c-'
         seq_names = ['a', 'b', 'c', 'd']
         ref_names = ['1', '1A', '2', '2A', '3']
-        self.correlations = corr.correlate_aligned_indecies(ref, seq,
-                                                            reference_names=ref_names,
-                                                            sequence_names=seq_names)
+        self.correlations = corr.correlate_aligned_indices(ref, seq,
+                                                           reference_names=ref_names,
+                                                           sequence_names=seq_names)
 
     def test_correlations(self):
         ans = {'1A': 'a', '2': 'b', '3': 'c'}
