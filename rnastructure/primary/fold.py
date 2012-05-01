@@ -93,6 +93,14 @@ class Result(object):
         self._sequence = None
         self._pairing = []
 
+    def indices(self, flanking=False):
+        parser = self.pairing()
+        return parser.loops(flanking=flanking)
+
+    def loops(self, flanking=False):
+        parser = self.pairing()
+        return parser.parse(self.sequence(), flanking=flanking)
+
     def sequence(self):
         if not self._sequence:
             if not self._pairing:
