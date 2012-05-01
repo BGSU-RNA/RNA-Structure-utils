@@ -11,7 +11,6 @@ class Parser(basic.Parser):
     def __init__(self, lines):
         self.sequence = []
         pairs = self.__pairs(lines)
-        print(pairs)
         if not pairs:
             raise ValueError, "Could not parse given data"
         self.sequence = ''.join(self.sequence)
