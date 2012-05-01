@@ -61,3 +61,20 @@ class BasicMfoldTest(unittest.TestCase):
               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
               2, 1, 0]
         self.assertEqual(val, ans)
+
+
+class ResultTest(unittest.TestCase):
+    def setUp(self):
+        fold = UNAfold()
+        self.sequence = "ggggggggggggaaaaaaaacccccccccccc"
+        self.result = fold.fold(self.sequence)[0]
+
+    def test_indices(self):
+        val = self.result.indices()
+        ans = {'hairpin': [tuple([[12, 13, 14, 15, 16, 17, 18, 19]])]}
+        self.assertEqual(val, ans)
+
+    def test_loops(self):
+        val = self.result.loops()
+        ans = {'hairpin': ['aaaaaaaa']}
+        self.assertEqual(val, ans)
