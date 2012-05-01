@@ -28,10 +28,10 @@ def correlated_columns(reference, sequence):
     return list(correlations)
 
 
-def correlate_aligned_indecies(reference, sequence, reference_names=None,
-                               sequence_names=None):
+def correlate_aligned_indices(reference, sequence, reference_names=None,
+                              sequence_names=None):
     """
-      Correlate the aligned indecies in two sequences
+      Correlate the aligned indices in two sequences
     """
     ref_correlations = columns_to_index(reference, reference_names)
     seq_correlations = columns_to_index(sequence, sequence_names)
