@@ -22,7 +22,7 @@ class Parser(object):
         self._tree = Node((None, self._len))
         self._loops = {}
         self.__as_tree()
-        self.__find_loops(self._tree)
+        self.__find_indices(self._tree)
 
     def __as_tree(self):
         stack = []
@@ -40,14 +40,14 @@ class Parser(object):
                 node = Node(pair)
                 self._tree.add_to_tree(node)
 
-    def __find_loops(self, node):
+    def __find_indices(self, node):
         loop_type = node.loop_type()
         if loop_type:
             if loop_type not in self._loops:
                 self._loops[loop_type] = []
             self._loops[loop_type].append(node.unpaired())
         for child in node.children:
-            self.__find_loops(child)
+            self.__find_indices(child)
 
     def loops(self, sequence, flanking=False):
         if len(self) != len(sequence):
