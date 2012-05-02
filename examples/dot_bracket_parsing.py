@@ -15,20 +15,20 @@ sequence = "ccggccaacccuuugggcagggccgg"
 parser = Dot.Parser(dot_string)
 
 # Get all loop indices
-print(parser.loops())
+print(parser.indices())
 # => {'internal': [([6, 7], [17, 18, 19])], 'hairpin': [([11, 12, 13],)]}
 
 # Get all loop indices plus flanking pairs
-print(parser.loops(flanking=True))
+print(parser.indices(flanking=True))
 # => {'internal': [([5, 6, 7, 8], [16, 17, 18, 19, 20])], 'hairpin': [([10, 11, 12, 13, 14],)]}
 
 # Extact the sequences of all loops from a sequence. Note that the sequence and
 # the structure must be the same length.
-print(parser.parse(sequence))
+print(parser.loops(sequence))
 # => {'internal': ['aa*cag'], 'hairpin': ['uuu']}
 
 # Extract the sequences of all loops plus flanking pairs.
-print(parser.parse(sequence, flanking=True))
+print(parser.loops(sequence, flanking=True))
 # => {'internal': ['caac*gcagg'], 'hairpin': ['cuuug']}
 
 # Other parsers are similar. The BPSeq and Connect parsers build with an

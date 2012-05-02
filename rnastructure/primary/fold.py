@@ -128,10 +128,10 @@ class Result(object):
         return lines
 
     def indices(self, flanking=False):
-        return self.parser.loops(flanking=flanking)
+        return self.parser.indices(flanking=flanking)
 
     def loops(self, flanking=False):
-        return self.parser.parse(self.sequence, flanking=flanking)
+        return self.parser.loops(self.sequence, flanking=flanking)
 
     def __file(self, extension):
         ext_file = self._name % extension
