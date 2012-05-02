@@ -1,5 +1,10 @@
 
 
+class EmptyStructureError(Exception):
+    """This is a exception used with asked to parse something which has no pairs.
+    """
+    pass
+
 class Format(object):
     def __init__(self, parser):
         self._pairs = parser._pairs
@@ -11,7 +16,7 @@ class Format(object):
 class Parser(object):
     def __init__(self, pairs):
         if not pairs:
-            raise ValueError("Must specify pairs to find loops.")
+            raise EmptyStructureError("Must specify pairs to find loops.")
         self._pairs = pairs
         self._len = len(pairs)
         self._tree = Node((None, self._len))

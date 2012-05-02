@@ -1,7 +1,12 @@
 import unittest
 
 from rnastructure.secondary.basic import Parser
+from rnastructure.secondary.basic import EmptyStructureError
 
+
+class BadInputTest(unittest.TestCase):
+    def test_empty_loops(self):
+        self.assertRaises(EmptyStructureError, Parser, [])
 
 class SimpleLoopTest(unittest.TestCase):
     def setUp(self):
