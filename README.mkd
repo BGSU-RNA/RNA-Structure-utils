@@ -1,8 +1,14 @@
-RNA Structure
-=============
+# RNA Structure #
 
 Some tools to parse RNA Structure annotations.
 
-Author
-======
+# Examples #
+
+    from rnastructure.secondary import dot_bracket as Dot
+    parser = Dot.Parse('(((...)))')
+    parser.parse('cccaaaggg')
+
+For more detail see `examples/`.
+
+# Author #
 Blake Sweeney <bsweene@bgsu.edu>
