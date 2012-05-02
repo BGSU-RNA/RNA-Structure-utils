@@ -5,6 +5,7 @@ class EmptyStructureError(Exception):
     """
     pass
 
+
 class Format(object):
     def __init__(self, parser):
         self._pairs = parser._pairs
