@@ -4,11 +4,7 @@ Some tools to parse RNA Structure annotations.
 
 # Examples #
 
-    from rnastructure.secondary import dot_bracket as Dot
-    parser = Dot.Parser('(((...)))')
-    parser.parse('cccaaaggg')
-
-For more detail see `examples/`.
+See `examples/`.
 
 # Author #
 Blake Sweeney <bsweene@bgsu.edu>
