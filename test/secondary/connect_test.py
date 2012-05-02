@@ -1,11 +1,12 @@
 import unittest
 
 from rnastructure.secondary.connect import Parser
+from rnastructure.secondary.connect import InvalidConnectLine
 
 
 class UnparserableConnectTest(unittest.TestCase):
     def test_complains(self):
-        self.assertRaises(ValueError, Parser,
+        self.assertRaises(InvalidConnectLine, Parser,
                           open('test/secondary/connect_test.py', 'r'))
 
 
