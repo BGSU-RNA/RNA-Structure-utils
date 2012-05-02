@@ -97,6 +97,12 @@ class Result(object):
         self._sequence = None
         self._pairing = []
 
+    def connect_file(self):
+        f = self.__file('ct')
+        lines = f.readlines()
+        f.close()
+        return lines
+
     def indices(self, flanking=False):
         parser = self.pairing()
         return parser.loops(flanking=flanking)
@@ -114,9 +120,12 @@ class Result(object):
 
     def pairing(self):
         if not self._pairing:
-            file_name = self._name % "ct"
-            opened = open(file_name, 'r')
+            opened = self.__file('ct')
             self._pairing = Connect(opened)
             opened.close()
 
         return self._pairing
+
+    def __file(self, extension):
+        ext_file = self._name % extension
+        return open(ext_file, 'r')

@@ -39,6 +39,13 @@ class BasicUNAfoldTest(unittest.TestCase):
         self.assertEqual(val, ans)
 
 
+# class LongFoldTest(unittest.TestCase):
+#     def setUp(self):
+#         self.sequence = 'GAGGAGAACTTCTAGTGTATATTCTGTATACCTAATATTATAGCCTTTATCAACAATGGAATCCCAACAATTATCTCAACATTCCCCGATT-TTTCATGGTAGCGCCTGTGCTTCGGTTACTTCTAAAGAAGTCCAAACAACTCAAGATCCGTTAGACATTTCAGCTTCCAAAACAGAAGAATGTGAGAAGGTTTCCACTCAGGCTAATTCTCAACAGCCAACAACACCTCCCTCATCTGCTGTTCCAGAGAACCATCATCATGCCTCTCCTCAAGCTGCTCAAGTACCATTG-CCACAAAATGGGCCGTACCCACAGCAGCGCATGATGAATACCCAA---CAAGCCAATATTTCTGGCTGGCCAGTATACGGGCACCC-ATCCTTGATGCCGTATCCACCTTATCAAATGTCACCTATGTACGCTCCACCTGGGGCACAATCACAGTTTACACAATATCCACAATATGTTGGAACACATTTGAACACCCCGTCACCTGAGTCAGGTAATTCATTTCCTGATTCATC-CTCAGCAAAGTCTAA---TATGACATCCACTAATCAACATGTCAGACCACCGCCAATCTTAACCTCACCTAATGACTTTCTAAATTGGGTTAAAATATACATCAAATTTTTACAAAATTCGAATCTC'
+#         self.folder = UNAfold(length=len(self.sequence) + 1)
+# 
+#     def internal
+
 class BasicMfoldTest(unittest.TestCase):
 
     def setUp(self):
@@ -73,6 +80,11 @@ class ResultTest(unittest.TestCase):
         fold = UNAfold()
         self.sequence = "ggggggggggggaaaaaaaacccccccccccc"
         self.result = fold.fold(self.sequence)[0]
+
+    def test_get_connect_file(self):
+        val = self.result.connect_file()
+        ans = '32	dG = -31.8	sequence\n'
+        self.assertEqual(val[0], ans)
 
     def test_indices(self):
         val = self.result.indices()
