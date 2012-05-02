@@ -7,13 +7,31 @@ import select
 from rnastructure.secondary.connect import Parser as Connect
 
 
+class FoldingTimeOutError(Exception):
+    """This class indeciates that the folding operation took longer than the
+    allowed time.
+    """
+    pass
+
+
+class FoldingFailedError(Exception):
+    """This class is used to indicate that the folding program exited with a
+    non-zero status.
+    """
+    pass
+
+
 class Folder(object):
-    def __init__(self, directory=None, name='seq_file', time=120):
+    def __init__(self, directory=None, name='seq_file', length=40, time=120):
         self._filename = name
         self._base = directory
         self._time = time
+        self._length = length
 
     def fold(self, sequence, options=None):
+        if len(sequence) > self._length:
+            raise ValueError("Given sequence too long. Given: %s, Max: %s" %
+                             (len(sequence), self._length))
         temp_dir = self._base
         options = options or {}
         if not temp_dir:
@@ -26,14 +44,24 @@ class Folder(object):
         args = [self.program]
         args.extend(self.process_arguments(self._filename, options))
         process = Popen(args, stdout=PIPE, stderr=PIPE)
+        self.stdout = process.stdout
+        self.stderr = process.stderr
         rlist, wlist, xlist = select.select([process.stderr],
                                             [],
                                             [process.stdout, process.stderr],
                                             self._time)
         os.chdir(cur_dir)
+
         if not rlist and not wlist and not xlist:
             process.kill()
-            raise ValueError("Failed running: %s" % self.program)
+            raise FoldingTimeOutError("Folding using %s timed out" % self.program)
+
+        process.poll()
+        code = process.returncode
+        if code != 0:
+            raise FoldingFailedError("Fold program: %s failed. Status: %s " %
+                                     (self.program, code))
+
         return ResultSet(temp_dir, self._filename)
 
 
@@ -90,29 +118,21 @@ class ResultSet(object):
 class Result(object):
     def __init__(self, name):
         self._name = name + ".%s"
-        self._sequence = None
-        self._pairing = []
+        self.parser = Connect(self.connect_file())
+        self.sequence = self.parser.sequence
+
+    def connect_file(self):
+        f = self.__file('ct')
+        lines = f.readlines()
+        f.close()
+        return lines
 
     def indices(self, flanking=False):
-        parser = self.pairing()
-        return parser.loops(flanking=flanking)
+        return self.parser.indices(flanking=flanking)
 
     def loops(self, flanking=False):
-        parser = self.pairing()
-        return parser.parse(self.sequence(), flanking=flanking)
+        return self.parser.loops(self.sequence, flanking=flanking)
 
-    def sequence(self):
-        if not self._sequence:
-            if not self._pairing:
-                self.pairing()
-            self._sequence = self._pairing.sequence
-        return self._sequence
-
-    def pairing(self):
-        if not self._pairing:
-            file_name = self._name % "ct"
-            opened = open(file_name, 'r')
-            self._pairing = Connect(opened)
-            opened.close()
-
-        return self._pairing
+    def __file(self, extension):
+        ext_file = self._name % extension
+        return open(ext_file, 'r')

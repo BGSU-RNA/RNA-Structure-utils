@@ -1,8 +1,10 @@
-RNA Structure
-=============
+# RNA Structure #
 
 Some tools to parse RNA Structure annotations.
 
-Author
-======
+# Examples #
+
+See `examples/`.
+
+# Author #
 Blake Sweeney <bsweene@bgsu.edu>

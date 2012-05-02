@@ -1,5 +1,12 @@
 
 
+class EmptyStructureError(Exception):
+    """This is a exception used with asked to parse something which has no
+    pairs.
+    """
+    pass
+
+
 class Format(object):
     def __init__(self, parser):
         self._pairs = parser._pairs
@@ -11,13 +18,13 @@ class Format(object):
 class Parser(object):
     def __init__(self, pairs):
         if not pairs:
-            raise ValueError("Must specify pairs to find loops.")
+            raise EmptyStructureError("Must specify pairs to find loops.")
         self._pairs = pairs
         self._len = len(pairs)
         self._tree = Node((None, self._len))
         self._loops = {}
         self.__as_tree()
-        self.__find_loops(self._tree)
+        self.__find_indices(self._tree)
 
     def __as_tree(self):
         stack = []
@@ -35,16 +42,16 @@ class Parser(object):
                 node = Node(pair)
                 self._tree.add_to_tree(node)
 
-    def __find_loops(self, node):
+    def __find_indices(self, node):
         loop_type = node.loop_type()
         if loop_type:
             if loop_type not in self._loops:
                 self._loops[loop_type] = []
             self._loops[loop_type].append(node.unpaired())
         for child in node.children:
-            self.__find_loops(child)
+            self.__find_indices(child)
 
-    def parse(self, sequence, flanking=False):
+    def loops(self, sequence, flanking=False):
         if len(self) != len(sequence):
             msg = "Sequence has wrong size, given '%s' expected '%s'"
             raise ValueError(msg % (len(sequence), len(self)))
@@ -55,7 +62,7 @@ class Parser(object):
             return join_str.join(map(lambda p: sequence[p], parts))
 
         ranges = {}
-        loops = self.loops(flanking=flanking)
+        loops = self.indices(flanking=flanking)
         for name, total in loops.iteritems():
             ranges[name] = []
             for positions in total:
@@ -66,19 +73,39 @@ class Parser(object):
                 ranges[name].append(loop_sequence)
         return ranges
 
-    def loops(self, flanking=False):
-        def add_flank(part):
-            if not part:
-                return part
-            flank = list(part)
-            left = part[0]
-            right = part[-1]
-            if left > 0:
-                flank.insert(0, left - 1)
-            if right + 1 < len(self):
-                flank.append(right + 1)
-            return flank
+    def paired_base(self, index):
+        """Get the base paired with the given one. None if no pair is made.
+        """
+        return self._pairs[index]
 
+    def __flanking(self, part):
+        """Get the flanking indecies for the given part.
+        """
+        if not part:
+            return part
+        flank = list(part)
+        left = part[0]
+        right = part[-1]
+        if left > 0:
+            flank.insert(0, left - 1)
+        if right + 1 < len(self):
+            flank.append(right + 1)
+        return flank
+
+    def __internal_flanking(self, loop):
+        """Compute the flanking base pairs for the given internal loop.
+        """
+        left = self.__flanking(loop[0])
+        right = []
+        if len(loop) > 1:
+            right = self.__flanking(loop[1])
+        if not left:
+            left = [self.paired_base(right[0]), self.paired_base(right[-1])]
+        if not right:
+            right = [self.paired_base(left[0]), self.paired_base(left[-1])]
+        return (left, right)
+
+    def indices(self, flanking=False):
         if not flanking:
             return self._loops
 
@@ -86,11 +113,14 @@ class Parser(object):
         for name, loops in self._loops.items():
             all_loops[name] = []
             for loop in loops:
+                flank = None
                 if name == "hairpins":
-                    all_loops[name].append(add_flank(loop))
+                    flank = self.__flanking(loop)
+                elif name == 'internal':
+                    flank = self.__internal_flanking(loop)
                 else:
-                    flank = [add_flank(l) for l in loop]
-                    all_loops[name].append(tuple(flank))
+                    flank = tuple([self.__flanking(l) for l in loop])
+                all_loops[name].append(flank)
         return all_loops
 
     def __len__(self):
@@ -164,7 +194,7 @@ class Node(object):
     def print_tree(self, indent=0):
         print(" " * indent + "Node: " + str(self.value))
         for child in self.children:
-            child.print_tree(indent=indent+1)
+            child.print_tree(indent=indent + 1)
 
     def __ne__(self, other):
         return self.value != other.value
@@ -182,4 +212,5 @@ class Node(object):
         return self.value < other.value
 
     def __eq__(self, other):
-        return isinstance(other, Node) and self.value == other.value and self.children == other.children
+        return isinstance(other, Node) and self.value == other.value and \
+            self.children == other.children

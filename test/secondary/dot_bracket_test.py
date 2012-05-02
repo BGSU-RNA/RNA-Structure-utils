@@ -7,8 +7,8 @@ class OuterLoopTest(unittest.TestCase):
     def setUp(self):
         self.structure = "...((..((..))....)).."
         self.parser = Parser(self.structure)
-        self.loops = self.parser.loops()
-        self.flanking = self.parser.loops(flanking=True)
+        self.loops = self.parser.indices()
+        self.flanking = self.parser.indices(flanking=True)
 
     def test_hairpins(self):
         ans = [tuple([[9, 10]])]
@@ -40,8 +40,8 @@ class SimpleParserTest(unittest.TestCase):
     def setUp(self):
         self.structure = "((..((..))....))..((...))"
         self.parser = Parser(self.structure)
-        self.loops = self.parser.loops()
-        self.flanking = self.parser.loops(flanking=True)
+        self.loops = self.parser.indices()
+        self.flanking = self.parser.indices(flanking=True)
 
     def test_hairpins(self):
         ans = [tuple([[6, 7]]), tuple([[20, 21, 22]])]
@@ -66,9 +66,9 @@ class NestedParserTest(unittest.TestCase):
     def setUp(self):
         self.structure = "...((..(((....)))...((((...))))...))..."
         self.parser = Parser(self.structure)
-        self.loops = self.parser.loops()
+        self.loops = self.parser.indices()
         seq = "aaaccaacccuuuugggtttccccuuuggggtttggttt"
-        self.sequences = self.parser.parse(seq)
+        self.sequences = self.parser.loops(seq)
 
     def test_hairpins(self):
         ans = [tuple([[24, 25, 26]]), tuple([[10, 11, 12, 13]])]
@@ -100,7 +100,7 @@ class NestedParserTest(unittest.TestCase):
 #     def setUp(self):
 #         self.structure = ".((.{{..((..))..((..))...}}..))."
 #         self.parser = Parser(self.structure)
-#         self.loops = self.parser.loops()
+#         self.loops = self.parser.indices()
 #
 #     def test_pseudoknots(self):
 #         ans = [([4, 5], [25, 26])]
@@ -122,7 +122,7 @@ class Ty1Test(unittest.TestCase):
     def setUp(self):
         self.structure = '(((((((.....((((((((...))))).)))......(((((((.........(((((.((.........(((((.(((((............(((.(((...((((....((..(((((....))))))).))))......((..(((...)))..)).))).)))........)))))))))).)).)))))..)))))))..)))).................(((.....))).((((....))))...((((((((.........(.(((((...((((..(((.........)))..))))....))))))))))))))........................((((((((....((((((..............))))))..............(((.(((((.((.......)).))))).)))....(((..(((((.((.((((........))))))((......))...........((((((((............))))))))......)))))..)))....(((((............))))).)))))..))).(((((......(((((((..........)))))))...)))))...................))).......'
         self.parser = Parser(self.structure)
-        self.loops = self.parser.loops()
+        self.loops = self.parser.indices()
 
     def test_hairpins(self):
         ans = [tuple([[20,21,22]]),
