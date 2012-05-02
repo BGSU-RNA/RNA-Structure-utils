@@ -3,6 +3,8 @@ import unittest
 
 from rnastructure.primary.fold import Mfold
 from rnastructure.primary.fold import UNAfold
+from rnastructure.primary.fold import FoldingFailedError
+from rnastructure.primary.fold import FoldingTimeOutError
 
 
 class BasicUNAfoldTest(unittest.TestCase):
@@ -20,19 +22,23 @@ class BasicUNAfoldTest(unittest.TestCase):
         seq = 'a' * 11
         self.assertRaises(ValueError, folder.fold, seq)
 
+    def test_timeout(self):
+        folder = UNAfold(time=0.1, length=100)
+        seq = 'cccccccccccccccccccccccaaaaaaaaaaaaaggggggggggggggggggggg'
+        self.assertRaises(FoldingTimeOutError, folder.fold, seq)
+
     def test_result_count(self):
         val = len(self.results)
         self.assertEqual(val, 2)
 
     def test_get_result_sequence(self):
         first = self.results[0]
-        val = first.sequence()
+        val = first.sequence
         ans = self.sequence
         self.assertEqual(val, ans)
 
-    def test_get_result_pairing(self):
-        parser = self.results[0].pairing()
-        val = parser._pairs
+    def test_get_result_indices(self):
+        val = self.results[0].parser._pairs
         ans = [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, None, None,
               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
               2, 1, 0]
@@ -62,13 +68,12 @@ class BasicMfoldTest(unittest.TestCase):
 
     def test_get_result_sequence(self):
         first = self.results[0]
-        val = first.sequence()
+        val = first.sequence
         ans = self.sequence
         self.assertEqual(val, ans)
 
-    def test_get_result_pairing(self):
-        parser = self.results[0].pairing()
-        val = parser._pairs
+    def test_get_result_indices(self):
+        val = self.results[0].parser._pairs
         ans = [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, None, None,
               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
               2, 1, 0]
