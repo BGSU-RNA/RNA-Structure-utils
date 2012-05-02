@@ -8,12 +8,16 @@ from rnastructure.secondary.connect import Parser as Connect
 
 
 class Folder(object):
-    def __init__(self, directory=None, name='seq_file', time=120):
+    def __init__(self, directory=None, name='seq_file', length=40, time=120):
         self._filename = name
         self._base = directory
         self._time = time
+        self._length = length
 
     def fold(self, sequence, options=None):
+        if len(sequence) > self._length:
+            raise ValueError("Given sequence too long. Given: %s, Max: %s" %
+                             (len(sequence), self._length))
         temp_dir = self._base
         options = options or {}
         if not temp_dir:

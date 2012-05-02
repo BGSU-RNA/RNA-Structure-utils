@@ -15,6 +15,11 @@ class BasicUNAfoldTest(unittest.TestCase):
     def test_program(self):
         self.assertEqual(self.fold.program, 'UNAFold.pl')
 
+    def test_max_length(self):
+        folder = UNAfold(length=10)
+        seq = 'a' * 11
+        self.assertRaises(ValueError, folder.fold, seq)
+
     def test_result_count(self):
         val = len(self.results)
         self.assertEqual(val, 2)
