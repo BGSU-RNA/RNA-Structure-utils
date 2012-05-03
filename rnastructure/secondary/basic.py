@@ -51,11 +51,17 @@ class Parser(object):
         for child in node.children:
             self.__find_indices(child)
 
-    def loops(self, sequence, flanking=False):
+    def loops(self, sequence=None, flanking=False):
+        if not sequence:
+            if self.sequence:
+                sequence = self.sequence
+            else:
+                raise ValueError("Must specify a sequence")
         if len(self) != len(sequence):
             msg = "Sequence has wrong size, given '%s' expected '%s'"
             raise ValueError(msg % (len(sequence), len(self)))
 
+        sequence = sequence.lower()
         def seq(parts, join_str='*'):
             if isinstance(parts[0], list):
                 return join_str.join(map(lambda p: seq(p, ''), parts))
