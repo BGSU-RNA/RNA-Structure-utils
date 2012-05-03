@@ -61,7 +61,6 @@ class Parser(object):
             msg = "Sequence has wrong size, given '%s' expected '%s'"
             raise ValueError(msg % (len(sequence), len(self)))
 
-        sequence = sequence.lower()
         def seq(parts, join_str='*'):
             if isinstance(parts[0], list):
                 return join_str.join(map(lambda p: seq(p, ''), parts))

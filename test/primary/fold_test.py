@@ -54,7 +54,7 @@ class RNAalifoldTest(unittest.TestCase):
 
     def test_result_loops(self):
         val = self.results[0].loops()
-        ans = {'hairpin': ['aaaaaaaa']}
+        ans = {'hairpin': ['AAAAAAAA']}
         self.assertEqual(val, ans)
 
 
