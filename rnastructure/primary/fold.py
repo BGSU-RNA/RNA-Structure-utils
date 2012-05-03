@@ -23,7 +23,7 @@ class FoldingFailedError(Exception):
 
 
 class Folder(object):
-    def __init__(self, directory=None, name='seq_file', length=40, time=120):
+    def __init__(self, directory=None, name='seq_file', length=500, time=120):
         self._filename = name
         self._base = directory
         self._time = time
