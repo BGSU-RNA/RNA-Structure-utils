@@ -1,10 +1,61 @@
 import os
 import unittest
+from StringIO import StringIO
 
 from rnastructure.primary.fold import Mfold
 from rnastructure.primary.fold import UNAfold
+from rnastructure.primary.fold import RNAalifold
 from rnastructure.primary.fold import FoldingFailedError
 from rnastructure.primary.fold import FoldingTimeOutError
+
+
+class RNAalifoldGenerateFileTest(unittest.TestCase):
+    def setUp(self):
+        self.fold = RNAalifold()
+        self.sequences = ["ggggggggggggaaaaaaaacccccccccccc", 
+                          "ggggggggggggaaaaaaaacccccccccccc"]
+        io = StringIO()
+        self.fold.generate_sequence_file(io, self.sequences)
+        self.contents = io.getvalue().split("\n")
+        io.close()
+
+    def test_header(self):
+        val = self.contents[0]
+        self.assertEqual(val, '# STOCKHOLM 1.0')
+
+    def test_file_len(self):
+        val = len(self.contents)
+        self.assertEqual(val, 4)
+
+
+class RNAalifoldTest(unittest.TestCase):
+    def setUp(self):
+        self.fold = RNAalifold()
+        self.sequences = ["ggggggggggggaaaaaaaacccccccccccc", 
+                          "ggggggggggggaaaaaaaacccccccccccc"]
+        self.results = self.fold.fold(self.sequences)
+
+    def test_program(self):
+        self.assertEqual(self.fold.program, 'RNAalifold')
+
+    def test_result_count(self):
+        val = len(self.results)
+        self.assertEqual(val, 1)
+
+    def test_result_sequence(self):
+        val = self.results[0].sequence
+        ans = 'GGGGGGGGGGGGAAAAAAAACCCCCCCCCCCC'
+        self.assertEqual(val, ans)
+
+    def test_result_indices(self):
+        val = self.results[0].indices()
+        ans = {'hairpin': [([12, 13, 14, 15, 16, 17, 18, 19],)]}
+        self.assertEqual(val, ans)
+
+    def test_result_loops(self):
+        val = self.results[0].loops()
+        ans = {'hairpin': ['aaaaaaaa']}
+        self.assertEqual(val, ans)
 
 
 class BasicUNAfoldTest(unittest.TestCase):
@@ -44,13 +95,6 @@ class BasicUNAfoldTest(unittest.TestCase):
               2, 1, 0]
         self.assertEqual(val, ans)
 
-
-# class LongFoldTest(unittest.TestCase):
-#     def setUp(self):
-#         self.sequence = 'GAGGAGAACTTCTAGTGTATATTCTGTATACCTAATATTATAGCCTTTATCAACAATGGAATCCCAACAATTATCTCAACATTCCCCGATT-TTTCATGGTAGCGCCTGTGCTTCGGTTACTTCTAAAGAAGTCCAAACAACTCAAGATCCGTTAGACATTTCAGCTTCCAAAACAGAAGAATGTGAGAAGGTTTCCACTCAGGCTAATTCTCAACAGCCAACAACACCTCCCTCATCTGCTGTTCCAGAGAACCATCATCATGCCTCTCCTCAAGCTGCTCAAGTACCATTG-CCACAAAATGGGCCGTACCCACAGCAGCGCATGATGAATACCCAA---CAAGCCAATATTTCTGGCTGGCCAGTATACGGGCACCC-ATCCTTGATGCCGTATCCACCTTATCAAATGTCACCTATGTACGCTCCACCTGGGGCACAATCACAGTTTACACAATATCCACAATATGTTGGAACACATTTGAACACCCCGTCACCTGAGTCAGGTAATTCATTTCCTGATTCATC-CTCAGCAAAGTCTAA---TATGACATCCACTAATCAACATGTCAGACCACCGCCAATCTTAACCTCACCTAATGACTTTCTAAATTGGGTTAAAATATACATCAAATTTTTACAAAATTCGAATCTC'
-#         self.folder = UNAfold(length=len(self.sequence) + 1)
-# 
-#     def internal
 
 class BasicMfoldTest(unittest.TestCase):
 
