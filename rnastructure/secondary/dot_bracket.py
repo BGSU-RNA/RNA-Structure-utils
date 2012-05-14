@@ -34,7 +34,7 @@ class Parser(basic.Parser):
                 left = helix_stack.pop()
                 pairs[left] = index
                 pairs[index] = left
-            elif char == '.' or char == ':':
+            elif char == '.' or char == ':' or char == '-':
                 pass
             elif char == '{' or char == '[':
                 knot_stack.append(index)
