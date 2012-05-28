@@ -47,10 +47,10 @@ class Parser(basic.Parser):
         return pairs
 
 
-class Format(basic.Format):
-    def format(self):
-        dot_string = [None] * len(self._pairs)
-        for index, pair in enumerate(self._pairs):
+class Writer(basic.Writer):
+    def format(self, parser):
+        dot_string = [None] * len(parser._pairs)
+        for index, pair in enumerate(parser._pairs):
             if dot_string[index]:
                 pass
             elif pair == None:

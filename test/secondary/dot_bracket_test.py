@@ -1,6 +1,7 @@
 import unittest
 
-from rnastructure.secondary.dot_bracket import Parser, Format
+from rnastructure.secondary.dot_bracket import Parser 
+from rnastructure.secondary.dot_bracket import Writer
 
 
 class OuterLoopTest(unittest.TestCase):
@@ -142,16 +143,12 @@ class Ty1Test(unittest.TestCase):
         self.assertEqual(self.loops['hairpin'], ans)
 
 
-class SimpleFormatTest(unittest.TestCase):
+class SimpleWriterTest(unittest.TestCase):
     def setUp(self):
         self.structure = "...((..((..))....)).."
-        parser = Parser(self.structure)
-        self.formatter = Format(parser)
+        self.parser = Parser(self.structure)
+        self.formatter = Writer()
 
     def test_format(self):
-        val = self.formatter.format()
-        self.assertEqual(val, self.structure)
-
-    def test_implict_format(self):
-        val = str(self.formatter)
+        val = self.formatter.format(self.parser)
         self.assertEqual(val, self.structure)
