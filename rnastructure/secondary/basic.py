@@ -7,21 +7,34 @@ class EmptyStructureError(Exception):
     pass
 
 
-class Format(object):
-    def __init__(self, parser):
-        self._pairs = parser._pairs
+class Writer(object):
+    """Base class to format a parser structure as a string.
+    """
+    def write(self, open_file, parser):
+        """Write the parser to a file.
 
-    def __str__(self):
-        return self.format()
+        :open_file: The open file handle to write to.
+        :parser: The parser to format.
+        """
+        return open_file.write(self.format(parser))
+
+
+    def format(self, parser):
+        """Create a string representation of the parser.
+
+        :parser: The parser to format.
+        """
+        return str(parser._pairs)
 
 
 class Parser(object):
     def __init__(self, pairs):
         if not pairs:
             raise EmptyStructureError("Must specify pairs to find loops.")
+        self.energy = ''
+        self.sequence = [None] * len(pairs)
         self._pairs = pairs
-        self._len = len(pairs)
-        self._tree = Node((None, self._len))
+        self._tree = Node((None, len(pairs)))
         self._loops = {}
         self.__as_tree()
         self.__find_indices(self._tree)
@@ -129,7 +142,7 @@ class Parser(object):
         return all_loops
 
     def __len__(self):
-        return self._len
+        return len(self._pairs)
 
 
 class Node(object):
