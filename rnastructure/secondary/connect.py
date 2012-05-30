@@ -72,8 +72,8 @@ class Parser(basic.Parser):
         self.entry = \
           re.compile('\A(\d+)\s+([A-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*')
         pairs = self.__pairs(lines)
-        self.sequence = ''.join(self.sequence)
-        super(Parser, self).__init__(pairs)
+        sequence = ''.join(self.sequence)
+        super(Parser, self).__init__(pairs, sequence=sequence)
 
     def __pairs(self, lines):
         pairs = []

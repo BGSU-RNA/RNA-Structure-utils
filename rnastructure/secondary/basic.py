@@ -28,11 +28,11 @@ class Writer(object):
 
 
 class Parser(object):
-    def __init__(self, pairs):
+    def __init__(self, pairs, sequence=None):
         if not pairs:
             raise EmptyStructureError("Must specify pairs to find loops.")
         self.energy = ''
-        self.sequence = [None] * len(pairs)
+        self.sequence = sequence or [None] * len(pairs)
         self._pairs = pairs
         self._tree = Node((None, len(pairs)))
         self._loops = {}
