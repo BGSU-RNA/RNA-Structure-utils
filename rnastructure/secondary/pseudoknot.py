@@ -73,7 +73,8 @@ class RemovePseudoknots(Base):
 
     def __call__(self, structure, options=None):
         """Remove pseudoknots from the given structure. This will return the
-        resulting parsed structure.
+        resulting parsed structure. Note that RemovePseudoknots requires the
+        DATADIR enviroment variable be set prior to running.
 
         :structure: The structure to remove pseudoknots from. This should be
         a parsed secondary structure like bpseq.Parser. It may be any one of
