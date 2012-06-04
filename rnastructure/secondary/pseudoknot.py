@@ -1,11 +1,8 @@
-import os
 from os import path
 
 from rnastructure.util.wrapper import is_true
 from rnastructure.util.wrapper import is_number
 from rnastructure.util.wrapper import Wrapper as Base
-from rnastructure.util.wrapper import ProgramFailedError
-from rnastructure.util.wrapper import ProgramTimeOutError
 from rnastructure.secondary.basic import Parser as BaseParser
 from rnastructure.secondary.connect import Parser as CtParser
 from rnastructure.secondary.connect import Writer as CtWriter
