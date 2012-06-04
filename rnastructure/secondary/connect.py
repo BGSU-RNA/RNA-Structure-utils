@@ -70,7 +70,7 @@ class Parser(basic.Parser):
         self.sequence = []
         self.header = re.compile('\A(\d+)\s+(dG|Energy|ENERGY)')
         self.entry = \
-          re.compile('\A(\d+)\s+([A-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)')
+          re.compile('\A(\d+)\s+([A-z?]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)')
         pairs = self.__pairs(lines)
         sequence = ''.join(self.sequence)
         super(Parser, self).__init__(pairs, sequence=sequence)
