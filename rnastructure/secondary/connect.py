@@ -68,9 +68,9 @@ class Parser(basic.Parser):
 
     def __init__(self, lines):
         self.sequence = []
-        self.header = re.compile('\A\d+\s+(dG|Energy|ENERGY)')
+        self.header = re.compile('\A(\d+)\s+(dG|Energy|ENERGY)')
         self.entry = \
-          re.compile('\A(\d+)\s+([A-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*')
+          re.compile('\A(\d+)\s+([A-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)')
         pairs = self.__pairs(lines)
         sequence = ''.join(self.sequence)
         super(Parser, self).__init__(pairs, sequence=sequence)
@@ -78,12 +78,13 @@ class Parser(basic.Parser):
     def __pairs(self, lines):
         pairs = []
         for index, line in enumerate(lines):
+            line = line.strip()
             if index == 0 and self.header.match(line):
                 pass
             elif index > 0 and self.header.match(line):
                 break
             elif self.entry.match(line):
-                parts = line.split("\t")
+                parts = line.split()
                 end = int(parts[4]) - 1
                 if end < 0:
                     end = None
