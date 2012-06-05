@@ -4,6 +4,19 @@ from rnastructure.secondary.dot_bracket import Parser
 from rnastructure.secondary.dot_bracket import Writer
 
 
+class RfamDialectTest(unittest.TestCase):
+    def setUp(self):
+        self.structure = '.AAA....<<<<aaa....>>>>'
+        self.parser = Parser(self.structure, dialect='rfam')
+        self.loops = self.parser.indices()
+
+    def test_finds_hairpins(self):
+        self.assertIn('hairpin', self.loops)
+
+    def test_finds_no_internal(self):
+        self.assertNotIn('internal', self.loops)
+
+
 class OuterLoopTest(unittest.TestCase):
     def setUp(self):
         self.structure = "...((..((..))....)).."
