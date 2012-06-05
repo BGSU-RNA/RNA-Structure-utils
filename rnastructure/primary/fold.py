@@ -1,115 +1,97 @@
-from subprocess import Popen, PIPE
-import tempfile
+"""This module wraps up several common and useful folding programs. In general
+these programs take one or more sequences and fold them into one or more
+secondary structures. Each program is represented as a single class where
+objects from each class are callable, take the appropriate inputs and return a
+parsed secondary structure object from rnastructure.secondary.
+
+Classes are named according to what program they wrap. We always capitalize the
+first character of each name but otherwise all names are as the program names.
+"""
+
 import os
 import re
-import select
 
+from rnastructure.util.wrapper import Wrapper
+from rnastructure.util.wrapper import InvalidInputError
 from rnastructure.secondary.connect import Parser as Connect
 from rnastructure.secondary.dot_bracket import Parser as DotBracket
 
 
-class FoldingTimeOutError(Exception):
-    """This class indeciates that the folding operation took longer than the
-    allowed time.
+class Folder(Wrapper):
+    """Folder wraps up several of the common patterns for running the folding
+    programs. It is uses the Wrapper classes to give a uniform interface.
     """
-    pass
 
+    def __init__(self, length=500, directory=None, name='seq_file', time=120):
+        """Create a new Folder.
 
-class FoldingFailedError(Exception):
-    """This class is used to indicate that the folding program exited with a
-    non-zero status.
-    """
-    pass
-
-
-class Folder(object):
-    def __init__(self, directory=None, name='seq_file', length=500, time=120):
-        self._filename = name
-        self._base = directory
-        self._time = time
+        :length: Maximum length of the sequence to allow.
+        :directory: Directory to work in, a temp dir if None is given.
+        :name: Name of the input file to use.
+        :time: Maximum amount of time to give the folding program.
+        """
         self._length = length
-        self.names = []
+        self.sequence_names = []
+        super(Folder, self).__init__(name, directory=directory, time=time)
 
-    def generate_sequence_file(self, seq_file, sequence):
-        """This method generates the file of sequences to be read by the
-        folding programs.
+    def _generate_input_file_(self, seq_file, sequence):
+        """Generate a simple fasta like format for the sequences. This differs
+        from a strict fasta format in that sequence lines are not wrapped at 80
+        characters and there is no way to generate a header.
+
+        :seq_file: File object to write to.
+        :sequence: Sequence to write.
         """
         seq_file.write(">sequence\n%s\n" % sequence)
 
-    def generate_results(self, process, temp_dir, filename):
-        """Generate the list or list like object which stores the results.
-        """
-        return ResultSet(temp_dir, filename)
+    def _validate_input_(self, sequence):
+        """Check that the the sequence is a string, that it has the correct
+        length and that it is only composed of A, C, G, U, and '-' ignoring
+        case.
 
-    def validate_sequence(self, sequence):
-        if not sequence:
-            raise ValueError("Must give sequence to fold.")
+        :sequence: Sequence to check.
+        """
+        if not isinstance(sequence, str):
+            raise InvalidInputError("Must give string sequence to fold.")
 
         if len(sequence) > self._length:
-            raise ValueError("Given sequence too long. Given: %s, Max: %s" %
-                             (len(sequence), self._length))
+            msg = "Given sequence too long. Given: %s, Max: %s"
+            raise InvalidInputError(msg % (len(sequence), self._length))
 
-    def fold(self, sequence, options=None):
+        if not re.match("[acguACGU-]+", sequence):
+            raise InvalidInputError("Sequence may only be A, C, G, U, -")
 
-        # Check the sequences are valid
-        self.validate_sequence(sequence)
+        return True
 
-        temp_dir = self._base
-        options = options or {}
-        if not temp_dir:
-            temp_dir = tempfile.mkdtemp()
-        cur_dir = os.getcwd()
+    def _generate_results_(self, process, temp_dir, filename):
+        """Generate a ResultSet object for the results.
 
-        # Write sequence file
-        os.chdir(temp_dir)
-        seq_file = open(self._filename, 'w')
-        self.generate_sequence_file(seq_file, sequence)
-        seq_file.close()
-
-        # Run program
-        args = [self.program]
-        args.extend(self.process_arguments(self._filename, options))
-        process = Popen(args, stdout=PIPE, stderr=PIPE)
-        self.stdout = process.stdout
-        self.stderr = process.stderr
-
-        # Use select to wait until process is done.
-        rlist, wlist, xlist = select.select([process.stderr], [],
-                                            [process.stdout, process.stderr],
-                                            self._time)
-        os.chdir(cur_dir)
-
-        if not rlist and not wlist and not xlist:
-            process.kill()
-            raise FoldingTimeOutError("Folding using %s timed out" %
-                                      self.program)
-
-        process.poll()
-        code = process.returncode
-        if code:
-            raise FoldingFailedError("Fold program: %s failed. Status: %s " %
-                                     (self.program, code))
-
-        # Generate result to return.
-        results = self.generate_results(process, temp_dir, self._filename)
-        return results
+        :process: The process object.
+        :temp_dir: Directory all work was done in.
+        :filename: Input filename.
+        """
+        return ResultSet(temp_dir, filename)
 
 
 class RNAalifold(Folder):
     """Use RNAalifold to fold some sequences. RNAalifold takes a sequence
-    alignment and folds it to produce a secondary structure. For details on
-    this program see: http://www.tbi.univie.ac.at/~ivo/RNA/ and
+    alignment and folds it to produce a single secondary structure. For
+    details on this program see: http://www.tbi.univie.ac.at/~ivo/RNA/ and
     http://www.tbi.univie.ac.at/~ronny/RNA/RNAalifold.html in particular.
     """
+
     program = 'RNAalifold'
 
-    def generate_results(self, process, temp_dir, filename):
+    def _generate_results_(self, process, temp_dir, filename):
         """This will generate a list of size 1 because RNAalifold only
         generates a single structure. The result will be a Dot-Bracket parser
         with a sequence property set the consensus produced by RNAalifold and
         an energy property of the energy line given by RNAalifold.
-        """
 
+        :process: The process object.
+        :temp_dir: The directory all work was done in.
+        :filename: Input filename.
+        """
         self.raw = process.stdout.readlines()
         if len(self.raw) != 3 and len(self.raw) != 2:
             raise FoldingFailedError("No valid output")
@@ -121,25 +103,32 @@ class RNAalifold(Folder):
         parser.energy = parts[1]
         return [parser]
 
-    def validate_sequence(self, sequences):
-        if not sequences:
-            raise ValueError("Must give sequence(s) to fold.")
-        if isinstance(sequences, list):
-            length = len(sequences[0])
-            if length > self._length:
-                raise ValueError("Given sequence too long. Given: %s, Max: %s"
-                                 % (length, self._length))
-            for sequence in sequences:
-                if len(sequence) != length:
-                    raise ValueError("All sequences must have the same length")
-        else:
-            super(RNAalifold, self).validate_sequence(sequences)
+    def _validate_input_(self, sequences):
+        """Check that the input is a list of valid sequences of the same
+        length.
 
-    def generate_sequence_file(self, seq_file, sequences):
-        """This generates a stockholm like format that RNAalifold can read. It
-        puts each sequence on a single line, which seems to be acceptable.
+        :sequences: Input sequences to check.
         """
-        names = self.names
+        if not isinstance(sequences, list) or len(sequences) < 1:
+            raise InvalidInputError("Must give a list of sequences to fold.")
+        length = len(sequences[0])
+        for sequence in sequences:
+            if len(sequence) != length:
+                raise InvalidInputError("All sequences have the same length")
+            super(RNAalifold, self)._validate_input_(sequence)
+        return True
+
+    def _generate_input_file_(self, seq_file, sequences):
+        """This generates a stockholm like format that RNAalifold can read. It
+        puts each sequence on a single line, which seems to be acceptable. This
+        only generates the required STOCKHOLM 1.0 header and then sequence 
+        lines. Each sequence line is of the form: 'sequence-$n $sequence'. 
+        Where $n is the index and $sequence is the sequence at that index.
+
+        :seq_file: File to write to.
+        :sequences: The input sequences.
+        """
+        names = self.sequence_names
         if not names:
             names = ['sequence-%s' for index in xrange(len(sequences))]
         seq_file.write("# STOCKHOLM 1.0\n")
@@ -147,38 +136,56 @@ class RNAalifold(Folder):
             name = names[index]
             seq_file.write("%s %s\n" % (name, sequence))
 
-    def process_arguments(self, filename, options):
-        args = []
-        for key, value in options.items():
-            prefix = '--'
-            if len(key) == 1:
-                prefix = '-'
-            if value == True:
-                args.append("%s%s" % (prefix, key))
-            else:
-                args.append("%s%s %s" % (prefix, key))
-        args.append(filename)
-        return args
+    def __call__(self, sequences, options=None):
+        """Fold the given sequences with RNAalifold. All sequences must have
+        the same length and should be only A, C, G, U or -. There must be at
+        least 2 sequences to fold. For details of what can be raised see
+        rnastructure.util.wrapper.Wrapper.__call__.
+
+        Options are currently ignored.
+
+        :sequences: List of sequences to fold.
+        :options: Options for RNAalifold.
+        :returns: A parsed secondary structure object.
+        """
+        return super(RNAalifold, self).__call__(sequences)
 
 
-class UNAfold(Folder):
+class UNAFold(Folder):
+    """This class wraps up UNAFold for use. UNAFold is the sucessor to mfold.
+    UNAFold takes a single sequence and folds it to produce a secondary
+    structure. For details see: http://mfold.rna.albany.edu/.
+    """
+
     program = 'UNAFold.pl'
 
-    def process_arguments(self, filename, options):
-        args = []
-        for key, value in options.items():
-            prefix = '--'
-            if len(key) == 1:
-                prefix = '-'
-            args.append('%s%s %s' % (prefix, key, value))
-        args.append(filename)
-        return args
+    def __call__(self, sequence, options=None):
+        """Fold the given sequence with UNAFold.
+
+        Currently options are ignored.
+
+        :sequence: Sequence to fold.
+        :options: The program options.
+        :returns: A parsed secondary structure object.
+        """
+        return super(UNAFold, self).__call__(sequence)
 
 
 class Mfold(Folder):
+    """This class wraps up mfold. Note that mfold is considered depreciated and
+    it is recommended to use UNAFold instead. For details on mfold see:
+    http://mfold.rna.albany.edu/?q=mfold/download-mfold
+    """
+
     program = 'mfold'
 
-    def process_arguments(self, filename, options):
+    def _generate_program_arguments_(self, filename, options):
+        """Create mfold's unique command line arguments.
+
+        :filename: The input filename.
+        :options: The options dictonary.
+        :returns: A list of the arguments to use.
+        """
         args = []
         options['seq'] = filename
         for key, value in options.items():
@@ -218,10 +225,8 @@ class Result(object):
         self.sequence = self.parser.sequence
 
     def connect_file(self):
-        f = self.__file('ct')
-        lines = f.readlines()
-        f.close()
-        return lines
+        with self.__file__('ct') as f:
+            return f.readlines()
 
     def indices(self, flanking=False):
         return self.parser.indices(flanking=flanking)
@@ -229,6 +234,6 @@ class Result(object):
     def loops(self, flanking=False):
         return self.parser.loops(self.sequence, flanking=flanking)
 
-    def __file(self, extension):
+    def __file__(self, extension):
         ext_file = self._name % extension
         return open(ext_file, 'r')

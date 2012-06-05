@@ -3,10 +3,10 @@ import unittest
 from StringIO import StringIO
 
 from rnastructure.primary.fold import Mfold
-from rnastructure.primary.fold import UNAfold
+from rnastructure.primary.fold import UNAFold
 from rnastructure.primary.fold import RNAalifold
-from rnastructure.primary.fold import FoldingFailedError
-from rnastructure.primary.fold import FoldingTimeOutError
+from rnastructure.util.wrapper import InvalidInputError
+from rnastructure.util.wrapper import ProgramTimeOutError
 
 
 class RNAalifoldGenerateFileTest(unittest.TestCase):
@@ -15,7 +15,7 @@ class RNAalifoldGenerateFileTest(unittest.TestCase):
         self.sequences = ["ggggggggggggaaaaaaaacccccccccccc", 
                           "ggggggggggggaaaaaaaacccccccccccc"]
         io = StringIO()
-        self.fold.generate_sequence_file(io, self.sequences)
+        self.fold._generate_input_file_(io, self.sequences)
         self.contents = io.getvalue().split("\n")
         io.close()
 
@@ -33,7 +33,7 @@ class RNAalifoldTest(unittest.TestCase):
         self.fold = RNAalifold()
         self.sequences = ["ggggggggggggaaaaaaaacccccccccccc", 
                           "ggggggggggggaaaaaaaacccccccccccc"]
-        self.results = self.fold.fold(self.sequences)
+        self.results = self.fold(self.sequences)
 
     def test_program(self):
         self.assertEqual(self.fold.program, 'RNAalifold')
@@ -58,25 +58,25 @@ class RNAalifoldTest(unittest.TestCase):
         self.assertEqual(val, ans)
 
 
-class BasicUNAfoldTest(unittest.TestCase):
+class BasicUNAFoldTest(unittest.TestCase):
 
     def setUp(self):
-        self.fold = UNAfold()
+        self.fold = UNAFold()
         self.sequence = "ggggggggggggaaaaaaaacccccccccccc"
-        self.results = self.fold.fold(self.sequence)
+        self.results = self.fold(self.sequence)
 
     def test_program(self):
         self.assertEqual(self.fold.program, 'UNAFold.pl')
 
     def test_max_length(self):
-        folder = UNAfold(length=10)
+        folder = UNAFold(length=10)
         seq = 'a' * 11
-        self.assertRaises(ValueError, folder.fold, seq)
+        self.assertRaises(InvalidInputError, folder, seq)
 
     def test_timeout(self):
-        folder = UNAfold(time=0.1, length=100)
+        folder = UNAFold(time=0.1, length=100)
         seq = 'cccccccccccccccccccccccaaaaaaaaaaaaaggggggggggggggggggggg'
-        self.assertRaises(FoldingTimeOutError, folder.fold, seq)
+        self.assertRaises(ProgramTimeOutError, folder, seq)
 
     def test_result_count(self):
         val = len(self.results)
@@ -101,7 +101,7 @@ class BasicMfoldTest(unittest.TestCase):
     def setUp(self):
         self.fold = Mfold()
         self.sequence = "ggggggggggggaaaaaaaacccccccccccc"
-        self.results = self.fold.fold(self.sequence)
+        self.results = self.fold(self.sequence)
 
     def test_program(self):
         self.assertEqual(self.fold.program, 'mfold')
@@ -126,9 +126,9 @@ class BasicMfoldTest(unittest.TestCase):
 
 class ResultTest(unittest.TestCase):
     def setUp(self):
-        fold = UNAfold()
+        fold = UNAFold()
         self.sequence = "ggggggggggggaaaaaaaacccccccccccc"
-        self.result = fold.fold(self.sequence)[0]
+        self.result = fold(self.sequence)[0]
 
     def test_get_connect_file(self):
         val = self.result.connect_file()
