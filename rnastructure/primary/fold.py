@@ -10,6 +10,7 @@ first character of each name but otherwise all names are as the program names.
 
 import os
 import re
+from collections import MutableSequence
 
 from rnastructure.util.wrapper import Wrapper
 from rnastructure.util.wrapper import InvalidInputError
@@ -193,7 +194,10 @@ class Mfold(Folder):
         return args
 
 
-class ResultSet(object):
+class ResultSet(MutableSequence):
+    def __init__(self):
+        self._pairings = [None] * self._count
+
     def __init__(self, base, name):
         self._name = name
         self._dir = base
@@ -213,6 +217,15 @@ class ResultSet(object):
             full_name = os.path.join(self._dir, file_name)
             self._pairings[index] = Result(full_name)
         return self._pairings[index]
+
+    def __setitem__(self, index, value):
+        self._pairings = value
+
+    def __delitem__(self, index):
+        del self._pairings[index]
+
+    def insert(self, index, value):
+        self._pairings.insert(index, value)
 
     def __len__(self):
         return self._count
