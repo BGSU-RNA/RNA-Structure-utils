@@ -53,7 +53,7 @@ class Writer(basic.Writer):
             sequence = parser.sequence[index] or '?'
             pair = parser._pairs[index]
             if pair == None:
-              pair = -1
+                pair = -1
             pair += 1
             data = (curr, sequence, index, after, pair, curr)
             line = '%s\t%s\t%s\t%s\t%s\t%s\n' % data
