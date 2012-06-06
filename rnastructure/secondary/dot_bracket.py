@@ -47,7 +47,9 @@ class Parser(basic.Parser):
     """
 
     dialects = {
-      'generic': Dialect('.:-', '(<', '>)', '{[', ']}'),
+      'simple': Dialect('.:-', '(<', '>)', '{[', ']}'),
+      'generic': Dialect('.:-', '(<', '>)', '{[' + string.uppercase,
+                         string.lowercase[::-1] + ']}'),
       'rfam': Dialect('.;', '(<[{', '}]>)', string.uppercase,
                       string.lowercase[::-1]),
     }
