@@ -1,5 +1,3 @@
-
-
 class EmptyStructureError(Exception):
     """This is a exception used with asked to parse something which has no
     pairs.
@@ -17,7 +15,6 @@ class Writer(object):
         :parser: The parser to format.
         """
         return open_file.write(self.format(parser))
-
 
     def format(self, parser):
         """Create a string representation of the parser.
@@ -162,7 +159,7 @@ class Node(object):
         if not self.children:
             return 'hairpin'
         if len(self.children) == 1:
-            if self.parent == None:
+            if self.parent is None:
                 return 'external'
             return 'internal'
         if len(self.children) > 1:
@@ -171,7 +168,7 @@ class Node(object):
         raise ValueError("Unknown type of loop")
 
     def left(self):
-        if self.value[0] == None:
+        if self.value[0] is None:
             return 0
         return self.value[0] + 1
 
