@@ -25,4 +25,5 @@ class RNAalifoldPostscriptTest(unittest.TestCase):
     def test_load_pairs(self):
         val = self.parser.pairs
         ans = [72, 71, 70, 69, 68, 67, 66, None]
+        self.assertEqual(len(val), 74)
         self.assertEquals(val[0:8], ans)
