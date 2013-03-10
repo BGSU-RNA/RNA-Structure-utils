@@ -14,6 +14,8 @@ START_SEQUENCE = re.compile(r"/sequence")
 END_SEQUENCE = re.compile('^\)\s*def$')
 SEQUENCE = re.compile('^(\w+)[^\w]?$')
 
+BOX = re.compile('%%BoundingBox:\s*(\d+)\s*(\d+)\s*(\d+)\s*(\d+)')
+
 
 class NoLocationAnnotations(Exception):
     """This error is raise when we cannot find the part of the postscript which
@@ -46,6 +48,7 @@ class Parser(basic.Parser):
         self.pairs = []
         self.sequence = ''
         self.locations = []
+        self.box = ()
         while True:
             try:
                 line = stream.next()
@@ -56,6 +59,10 @@ class Parser(basic.Parser):
                     self.locations = self.__locations__(stream)
                 elif START_PAIRS.match(line):
                     self.pairs = self.__pairs__(stream)
+                elif BOX.match(line):
+                    match = BOX.match(line)
+                    self.box = (int(match.group(1)), int(match.group(2)),
+                                int(match.group(3)), int(match.group(4)))
             except StopIteration:
                 break
 

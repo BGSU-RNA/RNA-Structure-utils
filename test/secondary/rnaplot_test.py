@@ -27,3 +27,8 @@ class RNAalifoldPostscriptTest(unittest.TestCase):
         ans = [72, 71, 70, 69, 68, 67, 66, None]
         self.assertEqual(len(val), 74)
         self.assertEquals(val[0:8], ans)
+
+    def test_load_bounding_box(self):
+        val = self.parser.box
+        ans = (66, 210, 518, 662)
+        self.assertEqual(val, ans)
