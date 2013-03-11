@@ -96,11 +96,11 @@ class RNAalifold(Folder):
         self.raw = process.stdout.readlines()
         if len(self.raw) != 3 and len(self.raw) != 2:
             raise FoldingFailedError("No valid output")
-        conensus = self.raw[0].rstrip()
+        consensus = self.raw[0].rstrip()
         structure_line = self.raw[1].rstrip()
         parts = structure_line.split(' ', 1)
         parser = DotBracket(parts[0])
-        parser.sequence = conensus
+        parser.sequence = consensus
         parser.energy = parts[1]
         return [parser]
 
