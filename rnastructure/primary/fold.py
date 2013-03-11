@@ -126,8 +126,8 @@ class RNAalifold(Folder):
     def _generate_input_file_(self, seq_file, sequences):
         """This generates a stockholm like format that RNAalifold can read. It
         puts each sequence on a single line, which seems to be acceptable. This
-        only generates the required STOCKHOLM 1.0 header and then sequence 
-        lines. Each sequence line is of the form: 'sequence-$n $sequence'. 
+        only generates the required STOCKHOLM 1.0 header and then sequence
+        lines. Each sequence line is of the form: 'sequence-$n $sequence'.
         Where $n is the index and $sequence is the sequence at that index.
 
         :seq_file: File to write to.
@@ -199,17 +199,14 @@ class Mfold(Folder):
 
 
 class ResultSet(MutableSequence):
-    def __init__(self):
-        self._pairings = [None] * self._count
-
     def __init__(self, base, name):
         self._name = name
         self._dir = base
+        self._pairings = [None] * self._count
         files = os.listdir(self._dir)
         pattern = '\A%s(_\d+)*\.ct\Z' % self._name
-        valid = [name for name in files if re.match(pattern, name)]
+        valid = [n for n in files if re.match(pattern, name)]
         self._count = len(valid)
-        self._pairings = [None] * self._count
 
     def __getitem__(self, index):
         if index >= self._count:
