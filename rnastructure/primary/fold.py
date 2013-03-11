@@ -56,8 +56,6 @@ class Folder(Wrapper):
 
         :sequence: Sequence to check.
         """
-        if not isinstance(sequence, str):
-            raise InvalidInputError("Must give string sequence to fold.")
 
         if len(sequence) > self._length:
             msg = "Given sequence too long. Given: %s, Max: %s"
