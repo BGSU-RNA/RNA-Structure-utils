@@ -18,6 +18,10 @@ from rnastructure.secondary.connect import Parser as Connect
 from rnastructure.secondary.dot_bracket import Parser as DotBracket
 
 
+class FoldingFailedError(Exception):
+    pass
+
+
 class Folder(Wrapper):
     """Folder wraps up several of the common patterns for running the folding
     programs. It is uses the Wrapper classes to give a uniform interface.
