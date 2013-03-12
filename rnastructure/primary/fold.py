@@ -16,6 +16,7 @@ from rnastructure.util.wrapper import Wrapper
 from rnastructure.util.wrapper import InvalidInputError
 from rnastructure.secondary.connect import Parser as Connect
 from rnastructure.secondary.dot_bracket import Parser as DotBracket
+from rnastructure.secondary.rnaplot import Parser as RNAPlot
 
 
 class FoldingFailedError(Exception):
@@ -104,7 +105,16 @@ class RNAalifold(Folder):
         parser = DotBracket(parts[0])
         parser.sequence = consensus
         parser.energy = parts[1]
+
+        ps_parser = self._load_locations(temp_dir, filename)
+        parser.locations = ps_parser.locations
+
         return [parser]
+
+    def _load_locations(self, temp_dir, filename):
+        ps_file = os.path.join(temp_dir, 'alirna.ps')
+        with open(ps_file, 'r') as raw:
+            return RNAPlot(raw)
 
     def _validate_input_(self, sequences):
         """Check that the input is a list of valid sequences of the same
