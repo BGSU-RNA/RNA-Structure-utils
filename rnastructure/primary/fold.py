@@ -108,6 +108,7 @@ class RNAalifold(Folder):
 
         ps_parser = self._load_locations(temp_dir, filename)
         parser.locations = ps_parser.locations
+        parser.box = ps_parser.box
 
         return [parser]
 
