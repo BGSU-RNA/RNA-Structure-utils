@@ -69,6 +69,14 @@ class Parser(object):
             self.__find_indices(child)
 
     def loops(self, sequence=None, flanking=False):
+        """Extract the loops for a given sequence. If no sequence is given then
+        we try to use the sequence property of self, otherwise it is an error.
+
+        :sequence: Sequence to extract loops from.
+        :flanking: True if we wish to extract the flanking basepairs as well as
+        the loop.
+        """
+
         if not sequence:
             if self.sequence:
                 sequence = self.sequence
@@ -128,6 +136,12 @@ class Parser(object):
         return (left, right)
 
     def indices(self, flanking=False):
+        """Get the indices of the loops in the parsed structure.
+
+        :flanking: True if we wish to extract the positions of the flanking
+        pairs as well.
+        """
+
         if not flanking:
             return self._loops
 
