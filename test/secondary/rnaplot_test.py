@@ -3,7 +3,7 @@ import unittest
 from rnastructure.secondary.rnaplot import Parser
 
 
-class RNAalifoldPostscriptTest(unittest.TestCase):
+class RNAPlotTest(unittest.TestCase):
     def setUp(self):
         with open('test/files/alirna.ps', 'r') as raw:
             self.parser = Parser(raw)
