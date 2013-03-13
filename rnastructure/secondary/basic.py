@@ -25,6 +25,13 @@ class Writer(object):
 
 
 class Parser(object):
+    """This is the most generic parser for secondary structure. This builds
+    with a list that gives the pairing information. This implements the actual
+    algorithm for extracting loops. At the moment it can only extract hairpin
+    and internal loops, in non-pseudoknotted structures but there is no reason
+    why this cannot be extended to pseudoknotted structures and junctions.
+    """
+
     def __init__(self, pairs, sequence=None):
         if not pairs:
             raise EmptyStructureError("Must specify pairs to find loops.")
