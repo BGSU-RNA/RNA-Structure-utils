@@ -1,3 +1,7 @@
+"""This is a package for dealing with connect file formats of RNA secondary
+structure. It contains code to write and read this format.
+"""
+
 import re
 
 import rnastructure.secondary.basic as basic
