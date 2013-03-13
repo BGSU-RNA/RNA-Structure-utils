@@ -101,7 +101,7 @@ class Parser(object):
         return self._pairs[index]
 
     def __flanking(self, part):
-        """Get the flanking indecies for the given part.
+        """Get the flanking indices for the given part.
         """
         if not part:
             return part
