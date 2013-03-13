@@ -47,11 +47,11 @@ class Parser(basic.Parser):
     """
 
     dialects = {
-      'simple': Dialect('.:-', '(<', '>)', '{[', ']}'),
-      'generic': Dialect('.:-', '(<', '>)', '{[' + string.uppercase,
-                         string.lowercase[::-1] + ']}'),
-      'rfam': Dialect('.;', '(<[{', '}]>)', string.uppercase,
-                      string.lowercase[::-1]),
+        'simple': Dialect('.:-', '(<', '>)', '{[', ']}'),
+        'generic': Dialect('.:-', '(<', '>)', '{[' + string.uppercase,
+                           string.lowercase[::-1] + ']}'),
+        'rfam': Dialect('.;', '(<[{', '}]>)', string.uppercase,
+                        string.lowercase[::-1]),
     }
 
     def __init__(self, structure, dialect='generic'):
@@ -109,7 +109,7 @@ class Writer(basic.Writer):
         for index, pair in enumerate(parser._pairs):
             if dot_string[index]:
                 pass
-            elif pair == None:
+            elif pair is None:
                 dot_string[index] = '.'
             elif index < pair:
                 dot_string[index] = '('
