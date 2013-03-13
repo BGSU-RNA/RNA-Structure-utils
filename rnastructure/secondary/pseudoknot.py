@@ -16,12 +16,12 @@ class RemovePseudoknots(Base):
     program = "RemovePseudoknots"
 
     options = {
-      'd': is_true,
-      'D': is_true,
-      'DNA': is_true,
-      't': is_number,
-      'T': is_number,
-      'temperature': is_number
+        'd': is_true,
+        'D': is_true,
+        'DNA': is_true,
+        't': is_number,
+        'T': is_number,
+        'temperature': is_number
     }
 
     def __init__(self, directory=None, timeout=10):
@@ -64,7 +64,7 @@ class RemovePseudoknots(Base):
     def _program_failed_(self, process):
         lines = process.stderr.readlines()
         if lines:
-            del lines[0] # First entry is a new line, so skip it.
+            del lines[0]  # First entry is a new line, so skip it.
             return ''.join(lines)
         return False
 
