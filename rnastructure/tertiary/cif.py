@@ -33,6 +33,32 @@ class CIF(object):
         reader.read(self.data)
         self.data = self.data[0]
 
+    def chain_polymer(self, requested):
+        for chain, polymer in self.polymers():
+            if chain == requested:
+                yield polymer
+
+    def polymers(self):
+        # TODO: Can I use a Table instead of a list, it has nice methods
+        polymer = []
+        rows = list(self.pdbx_poly_seq_scheme.rows())
+        chain = rows[0]['asym_id']
+        for row in rows:
+            if row['auth_mon_id'] == '?' or row['asym_id'] != chain:
+                if polymer:
+                    yield chain, polymer
+                polymer = []
+                chain = row['asym_id']
+            else:
+                polymer.append(row)
+        if polymer:
+            yield chain, polymer
+
+    def polymer_sequences(self):
+        for chain, polymer in self.polymers():
+            sequence = [unit['mon_id'] for unit in polymer]
+            yield chain, sequence
+
     def table(self, name):
         block_name = re.sub('^_', '', name)
         block = self.data.getObj(block_name)
