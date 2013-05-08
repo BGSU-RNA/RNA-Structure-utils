@@ -11,10 +11,10 @@ with open('test/files/1FAT.cif', 'rb') as raw:
 
 class PolymersTest(unittest.TestCase):
     def setUp(self):
-        self.data = list(DATA.chain_polymer('D'))
+        self.data = DATA.chain_polymer('D')
 
     def test_gets_all_chains(self):
-        val = sorted(list(set([chain for (chain, poly) in DATA.polymers()])))
+        val = sorted(list(set([poly.chain for poly in DATA.polymers()])))
         ans = ['A', 'B', 'C', 'D']
         self.assertEqual(val, ans)
 

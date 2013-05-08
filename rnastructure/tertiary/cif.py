@@ -34,25 +34,22 @@ class CIF(object):
         self.data = self.data[0]
 
     def chain_polymer(self, requested):
-        for chain, polymer in self.polymers():
-            if chain == requested:
-                yield polymer
+        return [p for p in self.polymers() if p.chain == requested]
 
     def polymers(self):
-        # TODO: Can I use a Table instead of a list, it has nice methods
-        polymer = []
-        rows = list(self.pdbx_poly_seq_scheme.rows())
+        rows = []
+        rows = list(self.pdbx_poly_seq_scheme.rows)
         chain = rows[0]['asym_id']
         for row in rows:
             if row['auth_mon_id'] == '?' or row['asym_id'] != chain:
-                if polymer:
-                    yield chain, polymer
-                polymer = []
+                if rows:
+                    yield Polymer(chain, rows)
+                rows = []
                 chain = row['asym_id']
             else:
-                polymer.append(row)
-        if polymer:
-            yield chain, polymer
+                rows.append(row)
+        if rows:
+            yield Polymer(chain, rows)
 
     def polymer_sequences(self):
         for chain, polymer in self.polymers():
@@ -79,9 +76,9 @@ class Table(object):
     """
 
     def __init__(self, block):
-        self.block = block
-        self.name = self.block.getName()
-        self.columns = self.block.getItemNameList()
+        self._block = block
+        self.name = self._block.getName()
+        self.columns = self._block.getItemNameList()
         self.columns = [re.sub('_.+\.', '', name) for name in self.columns]
 
     def row(self, number):
@@ -93,8 +90,9 @@ class Table(object):
         if number >= len(self):
             raise IndexError("Row index out of range.")
 
-        return dict(zip(self.columns, self.block.getRow(number)))
+        return dict(zip(self.columns, self._block.getRow(number)))
 
+    @property
     def rows(self):
         """Get a list of all rows"""
         for index in xrange(len(self)):
@@ -106,7 +104,7 @@ class Table(object):
             raise MissingColumn("Unknown column.")
 
         values = []
-        for row in self.rows():
+        for row in self.rows:
             values.append(row[name])
         return values
 
@@ -134,11 +132,52 @@ class Table(object):
             except:
                 raise KeyError("Unknown column " + index)
         if isinstance(index, slice):
-            iterator = islice(self.rows(), index.start, index.stop, index.step)
+            # TODO: It would be nice to get another table back after slicing.
+            iterator = islice(self.rows, index.start, index.stop, index.step)
             return list(iterator)
         raise TypeError("Unknown key type, should be str or int")
 
     def __len__(self):
         """Get the number of rows.
         """
-        return self.block.getRowCount()
+        return self._block.getRowCount()
+
+
+class TableSubset(Table):
+    """This is used to represent a subset of a table. This will provide the
+    normal Table methods but will use a list of rows.
+    """
+    def __init__(self, name, rows):
+        self.name = 'pdbx_poly_seq_scheme'
+        self._rows = rows
+        self.columns = rows[0].keys()
+
+    @property
+    def rows(self):
+        return self._rows
+
+    def row(self, number):
+        """Get a row by index. Note that this may or may not be in the same
+        order as they appear in the cif file, since cif files are not required
+        to be ordered. The row will be a dict of the form { attribute: value }.
+        Each attribute will have the name of the block stripped.
+        """
+        return self.rows[number]
+
+    def __len__(self):
+        """Get the number of rows.
+        """
+        return len(self._rows)
+
+
+class Polymer(TableSubset):
+    """This represents a polymer in a mmCIF file. A polymer is a continuous set
+    of resolved nucleotides from a single asymmetric unit.
+    """
+    def __init__(self, chain, rows):
+        self.chain = chain
+        super(Polymer, self).__init__('pdbx_poly_seq_scheme', rows)
+
+    @property
+    def sequence(self):
+        return self.mon_id

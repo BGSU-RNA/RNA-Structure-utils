@@ -81,7 +81,7 @@ class SimpleTableTest(unittest.TestCase):
 
     def test_iterates_over_all_rows(self):
         ans = 1008
-        val = len(list(self.data.rows()))
+        val = len(list(self.data.rows))
         self.assertEqual(val, ans)
 
     def test_gets_a_column(self):
