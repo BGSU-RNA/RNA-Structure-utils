@@ -66,7 +66,7 @@ class CIF(object):
     def __getattr__(self, name):
         try:
             return self.table(name)
-        except:
+        except MissingBlockException:
             raise AttributeError("Unknown block " + name)
 
 
@@ -118,7 +118,7 @@ class Table(object):
         """
         try:
             return self.column(name)
-        except:
+        except MissingColumn:
             raise AttributeError("Unknown column")
 
     def __getitem__(self, index):
@@ -129,7 +129,7 @@ class Table(object):
         if isinstance(index, str):
             try:
                 return self.column(index)
-            except:
+            except MissingColumn:
                 raise KeyError("Unknown column " + index)
         if isinstance(index, slice):
             # TODO: It would be nice to get another table back after slicing.
