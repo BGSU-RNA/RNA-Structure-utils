@@ -41,12 +41,13 @@ class CIF(object):
         rows = list(self.pdbx_poly_seq_scheme.rows)
         chain = rows[0]['asym_id']
         for row in rows:
-            if row['auth_mon_id'] == '?' or row['asym_id'] != chain:
+            monomer = row['auth_mon_id']
+            if monomer == '?' or row['asym_id'] != chain:
                 if rows:
                     yield Polymer(chain, rows)
                 rows = []
                 chain = row['asym_id']
-            else:
+            if monomer != '?':
                 rows.append(row)
         if rows:
             yield Polymer(chain, rows)
