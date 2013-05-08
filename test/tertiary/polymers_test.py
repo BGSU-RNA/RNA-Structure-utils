@@ -35,6 +35,4 @@ class PolymersTest(unittest.TestCase):
         val = []
         for poly in self.data:
             val.append(''.join([three_to_one(s) for s in poly.sequence]))
-        pprint(val[1])
-        pprint(ans[1])
         self.assertEqual(val, ans)
