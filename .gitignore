@@ -2,3 +2,5 @@
 *.pyc
 tmp/
 build/
+.tox/
+MANIFEST
