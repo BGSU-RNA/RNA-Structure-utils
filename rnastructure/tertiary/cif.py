@@ -182,3 +182,13 @@ class Polymer(TableSubset):
     @property
     def sequence(self):
         return self.mon_id
+
+    def first(self):
+        """Get the first nucleotide of the polymer.
+        """
+        return self.row(0)
+
+    def last(self):
+        """Get the last nucleotide of the polymer.
+        """
+        return self.row(len(self))
