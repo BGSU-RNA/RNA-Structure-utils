@@ -211,11 +211,11 @@ class ResultSet(MutableSequence):
     def __init__(self, base, name):
         self._name = name
         self._dir = base
-        self._pairings = [None] * self._count
         files = os.listdir(self._dir)
         pattern = '\A%s(_\d+)*\.ct\Z' % self._name
         valid = [n for n in files if re.match(pattern, name)]
         self._count = len(valid)
+        self._pairings = [None] * self._count
 
     def __getitem__(self, index):
         if index >= self._count:
