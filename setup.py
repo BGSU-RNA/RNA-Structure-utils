@@ -10,5 +10,11 @@ setup(
     url='',
     license='LICENSE.txt',
     description='Some tools to parse RNA Structure',
-    long_description=open('README.mkd').read(),
+    long_description="""
+This is a series of tools and wrappers for things related to RNA structure.
+This primarly focuses on wrapping other programs in a nice python interface,
+such as RNAalifold and UNAfold. However, this also provides tools for parsing
+secondary structure. There is also a small wrapper around the CIF file reader
+provided by NDB to create a more pythonic interface.
+    """
 )
