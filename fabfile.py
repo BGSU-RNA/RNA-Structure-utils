@@ -7,7 +7,13 @@ def test():
 
 
 @task
+def tox():
+    local("tox")
+
+
+@task
 def deploy():
+    tox()
     local("git push origin develop")
     local("git checkout master")
     local("git merge master develop")
