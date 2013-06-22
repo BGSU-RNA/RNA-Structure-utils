@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from os import path
 
 from rnastructure.util.wrapper import is_true

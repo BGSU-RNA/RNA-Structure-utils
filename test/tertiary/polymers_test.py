@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 import unittest
 
 from rnastructure.tertiary.cif import CIF

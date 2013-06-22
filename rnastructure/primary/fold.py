@@ -8,6 +8,9 @@ Classes are named according to what program they wrap. We always capitalize the
 first character of each name but otherwise all names are as the program names.
 """
 
+from __future__ import with_statement
+
+
 import os
 import re
 from collections import MutableSequence

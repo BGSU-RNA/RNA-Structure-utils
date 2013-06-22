@@ -1,6 +1,9 @@
 """This is for storing utilities to wrap command line programs.
 """
 
+from __future__ import with_statement
+
+
 import os
 import select
 import tempfile

@@ -1,6 +1,6 @@
 import unittest
 
-from rnastructure.secondary.dot_bracket import Parser 
+from rnastructure.secondary.dot_bracket import Parser
 from rnastructure.secondary.dot_bracket import Writer
 
 
@@ -11,10 +11,10 @@ class RfamDialectTest(unittest.TestCase):
         self.loops = self.parser.indices()
 
     def test_finds_hairpins(self):
-        self.assertIn('hairpin', self.loops)
+        self.assertTrue('hairpin' in self.loops)
 
     def test_finds_no_internal(self):
-        self.assertNotIn('internal', self.loops)
+        self.assertFalse('internal' in self.loops)
 
 
 class OuterLoopTest(unittest.TestCase):
