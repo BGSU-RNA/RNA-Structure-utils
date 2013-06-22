@@ -186,8 +186,8 @@ class UNAFold(Folder):
 
 
 class Mfold(Folder):
-    """This class wraps up mfold. Note that mfold is considered depreciated and
-    it is recommended to use UNAFold instead. For details on mfold see:
+    """This class wraps up mfold. Note that mfold is considered depreciated
+    and it is recommended to use UNAFold instead. For details on mfold see:
     http://mfold.rna.albany.edu/?q=mfold/download-mfold
     """
 
@@ -212,8 +212,10 @@ class ResultSet(MutableSequence):
         self._name = name
         self._dir = base
         files = os.listdir(self._dir)
-        pattern = '\A%s(_\d+)*\.ct\Z' % self._name
-        valid = [n for n in files if re.match(pattern, name)]
+        pattern = '%s(_\d+)*\.ct' % self._name
+        valid = [n for n in files if re.match(pattern, n)]
+        if not valid:
+            raise FoldingFailedError("Could not find any generated foldings")
         self._count = len(valid)
         self._pairings = [None] * self._count
 
