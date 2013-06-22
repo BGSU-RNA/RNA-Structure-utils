@@ -1,7 +1,6 @@
 import unittest
 from StringIO import StringIO
 
-from rnastructure.primary.fold import Mfold
 from rnastructure.primary.fold import UNAFold
 from rnastructure.primary.fold import RNAalifold
 from rnastructure.util.wrapper import InvalidInputError
@@ -76,34 +75,6 @@ class BasicUNAFoldTest(unittest.TestCase):
         folder = UNAFold(time=0.1, length=100)
         seq = 'cccccccccccccccccccccccaaaaaaaaaaaaaggggggggggggggggggggg'
         self.assertRaises(ProgramTimeOutError, folder, seq)
-
-    def test_result_count(self):
-        val = len(self.results)
-        self.assertEqual(val, 2)
-
-    def test_get_result_sequence(self):
-        first = self.results[0]
-        val = first.sequence
-        ans = self.sequence
-        self.assertEqual(val, ans)
-
-    def test_get_result_indices(self):
-        val = self.results[0].parser._pairs
-        ans = [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, None, None,
-               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
-               2, 1, 0]
-        self.assertEqual(val, ans)
-
-
-class BasicMfoldTest(unittest.TestCase):
-
-    def setUp(self):
-        self.fold = Mfold()
-        self.sequence = "ggggggggggggaaaaaaaacccccccccccc"
-        self.results = self.fold(self.sequence)
-
-    def test_program(self):
-        self.assertEqual(self.fold.program, 'mfold')
 
     def test_result_count(self):
         val = len(self.results)

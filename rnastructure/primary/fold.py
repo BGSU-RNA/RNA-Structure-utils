@@ -185,28 +185,6 @@ class UNAFold(Folder):
         return super(UNAFold, self).__call__(sequence)
 
 
-class Mfold(Folder):
-    """This class wraps up mfold. Note that mfold is considered depreciated
-    and it is recommended to use UNAFold instead. For details on mfold see:
-    http://mfold.rna.albany.edu/?q=mfold/download-mfold
-    """
-
-    program = 'mfold'
-
-    def _generate_program_arguments_(self, filename, options):
-        """Create mfold's unique command line arguments.
-
-        :filename: The input filename.
-        :options: The options dictonary.
-        :returns: A list of the arguments to use.
-        """
-        args = []
-        options['seq'] = filename
-        for key, value in options.items():
-            args.append("%s=%s" % (key.upper(), value))
-        return args
-
-
 class ResultSet(MutableSequence):
     def __init__(self, base, name):
         self._name = name
