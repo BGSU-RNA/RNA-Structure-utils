@@ -1,4 +1,3 @@
-import os
 import unittest
 from StringIO import StringIO
 
@@ -12,7 +11,7 @@ from rnastructure.util.wrapper import ProgramTimeOutError
 class RNAalifoldGenerateFileTest(unittest.TestCase):
     def setUp(self):
         self.fold = RNAalifold()
-        self.sequences = ["ggggggggggggaaaaaaaacccccccccccc", 
+        self.sequences = ["ggggggggggggaaaaaaaacccccccccccc",
                           "ggggggggggggaaaaaaaacccccccccccc"]
         io = StringIO()
         self.fold._generate_input_file_(io, self.sequences)
@@ -31,7 +30,7 @@ class RNAalifoldGenerateFileTest(unittest.TestCase):
 class RNAalifoldTest(unittest.TestCase):
     def setUp(self):
         self.fold = RNAalifold()
-        self.sequences = ["ggggggggggggaaaaaaaacccccccccccc", 
+        self.sequences = ["ggggggggggggaaaaaaaacccccccccccc",
                           "ggggggggggggaaaaaaaacccccccccccc"]
         self.results = self.fold(self.sequences)
 
@@ -91,8 +90,8 @@ class BasicUNAFoldTest(unittest.TestCase):
     def test_get_result_indices(self):
         val = self.results[0].parser._pairs
         ans = [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, None, None,
-              None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
-              2, 1, 0]
+               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
+               2, 1, 0]
         self.assertEqual(val, ans)
 
 
@@ -119,8 +118,8 @@ class BasicMfoldTest(unittest.TestCase):
     def test_get_result_indices(self):
         val = self.results[0].parser._pairs
         ans = [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, None, None,
-              None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
-              2, 1, 0]
+               None, None, None, None, None, None, 11, 10, 9, 8, 7, 6, 5, 4, 3,
+               2, 1, 0]
         self.assertEqual(val, ans)
 
 
