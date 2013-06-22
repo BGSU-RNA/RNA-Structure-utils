@@ -17,7 +17,7 @@ class UnparserableConnectTest(unittest.TestCase):
 
 class MultiStructureConnectTest(unittest.TestCase):
     def setUp(self):
-        connect = open('test/files/simple_connect.ct', 'r')
+        connect = open('files/simple_connect.ct', 'r')
         self.parser = Parser(connect)
         connect.close()
         self.loops = self.parser.indices()

@@ -3,7 +3,7 @@ import unittest
 from rnastructure.tertiary.cif import CIF
 
 
-with open('test/files/1FAT.cif', 'rb') as raw:
+with open('files/1FAT.cif', 'rb') as raw:
     DATA = CIF(raw)
 
 

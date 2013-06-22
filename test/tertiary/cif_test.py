@@ -4,7 +4,7 @@ from rnastructure.tertiary.cif import CIF
 from rnastructure.tertiary.cif import MissingColumn
 from rnastructure.tertiary.cif import MissingBlockException
 
-with open('test/files/1FAT.cif', 'rb') as raw:
+with open('files/1FAT.cif', 'rb') as raw:
     DATA = CIF(raw)
 
 

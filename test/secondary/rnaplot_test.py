@@ -5,7 +5,7 @@ from rnastructure.secondary.rnaplot import Parser
 
 class RNAPlotTest(unittest.TestCase):
     def setUp(self):
-        with open('test/files/alirna.ps', 'r') as raw:
+        with open('files/alirna.ps', 'r') as raw:
             self.parser = Parser(raw)
 
     def test_load_sequence(self):
