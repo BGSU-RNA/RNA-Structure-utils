@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='RNAStructure',
-    version='0.0.14',
+    version='0.0.15',
     author='Blake A. Sweeney',
     author_email='bsweene@bgsu.edu',
     packages=['rnastructure', 'rnastructure.primary', 'rnastructure.secondary',
