@@ -53,9 +53,8 @@ class CIF(object):
             yield Polymer(chain, rows)
 
     def polymer_sequences(self):
-        for chain, polymer in self.polymers():
-            sequence = [unit['mon_id'] for unit in polymer]
-            yield chain, sequence
+        for polymer in self.polymers():
+            yield polymer.chain, polymer.sequence
 
     def table(self, name):
         block_name = re.sub('^_', '', name)

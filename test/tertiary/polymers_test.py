@@ -5,17 +5,24 @@ import unittest
 from rnastructure.tertiary.cif import CIF
 
 
-with open('files/1FAT.cif', 'rb') as raw:
-    DATA = CIF(raw)
-
-
 class PolymersTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with open('files/1FAT.cif', 'rb') as raw:
+            cls.data = CIF(raw)
+
     def setUp(self):
-        self.data = DATA.chain_polymer('D')
+        self.cif = self.__class__.data
+        self.data = self.cif.chain_polymer('D')
 
     def test_gets_all_chains(self):
-        val = sorted(list(set([poly.chain for poly in DATA.polymers()])))
+        val = sorted(list({poly.chain for poly in self.cif.polymers()}))
         ans = ['A', 'B', 'C', 'D']
+        self.assertEqual(val, ans)
+
+    def test_gets_requested_chain_polymer(self):
+        val = [poly.chain for poly in self.data]
+        ans = ["D", "D"]
         self.assertEqual(val, ans)
 
     def test_gets_polymers_with_breaks(self):
