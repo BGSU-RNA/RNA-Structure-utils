@@ -130,9 +130,9 @@ class Parser(object):
         if len(loop) > 1:
             right = self.__flanking(loop[1])
         if not left:
-            left = [self.paired_base(right[0]), self.paired_base(right[-1])]
+            left = [self.paired_base(right[-1]), self.paired_base(right[0])]
         if not right:
-            right = [self.paired_base(left[0]), self.paired_base(left[-1])]
+            right = [self.paired_base(left[-1]), self.paired_base(left[0])]
         return (left, right)
 
     def indices(self, flanking=False):

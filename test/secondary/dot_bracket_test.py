@@ -165,3 +165,27 @@ class SimpleWriterTest(unittest.TestCase):
     def test_format(self):
         val = self.formatter.format(self.parser)
         self.assertEqual(val, self.structure)
+
+
+class EmptyRightSideTest(unittest.TestCase):
+    def setUp(self):
+        self.structure = "((....((..))))"
+        self.parser = Parser(self.structure)
+        self.loops = self.parser.indices(flanking=True)
+
+    def test_internal_loops(self):
+        val = self.loops['internal']
+        ans = [tuple([[1, 2, 3, 4, 5, 6], [11, 12]])]
+        self.assertEqual(val, ans)
+
+
+class EmptyLeftSideTest(unittest.TestCase):
+    def setUp(self):
+        self.structure = "((((..))....))"
+        self.parser = Parser(self.structure)
+        self.loops = self.parser.indices(flanking=True)
+
+    def test_internal_loops(self):
+        val = self.loops['internal']
+        ans = [tuple([[7, 8, 9, 10, 11, 12], [1, 2]])]
+        self.assertEqual(val, ans)
