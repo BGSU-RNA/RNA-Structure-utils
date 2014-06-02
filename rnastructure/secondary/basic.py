@@ -133,6 +133,8 @@ class Parser(object):
             left = [self.paired_base(right[-1]), self.paired_base(right[0])]
         if not right:
             right = [self.paired_base(left[-1]), self.paired_base(left[0])]
+        if left[0] > right[0]:
+            return (right, left)
         return (left, right)
 
     def indices(self, flanking=False):
