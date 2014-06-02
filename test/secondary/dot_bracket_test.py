@@ -187,5 +187,5 @@ class EmptyLeftSideTest(unittest.TestCase):
 
     def test_internal_loops(self):
         val = self.loops['internal']
-        ans = [tuple([[7, 8, 9, 10, 11, 12], [1, 2]])]
+        ans = [tuple([[1, 2], [7, 8, 9, 10, 11, 12]])]
         self.assertEqual(val, ans)
