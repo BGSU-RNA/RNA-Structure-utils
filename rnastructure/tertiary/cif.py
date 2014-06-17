@@ -288,6 +288,12 @@ class ResidueContainer(object):
         for residue, atoms in self.__grouped__():
             yield Residue(self._cif, self['symmetry_operator'], list(atoms))
 
+    def residue(self, target):
+        for index, residue in enumerate(self.residues()):
+            if index == target:
+                return residue
+        raise IndexError()
+
     def __grouped__(self):
         fn = lambda r: (r['auth_seq_id'], r['pdbx_PDB_ins_code'])
         return it.groupby(self.atoms(), fn)
@@ -425,9 +431,10 @@ class Chain(ResidueContainer, GenericMapping):
         if chain:
             yield chain
 
-    def polymer(self, index):
+    def polymer(self, target):
         for index, polymer in enumerate(self.polymers()):
-            return polymer
+            if index == target:
+                return polymer
         raise IndexError()
 
     def has_breaks(self):
