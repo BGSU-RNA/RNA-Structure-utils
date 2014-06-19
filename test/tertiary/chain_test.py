@@ -15,12 +15,12 @@ class PolymersTest(unittest.TestCase):
         self.data = self.cif.chain('1_555', 1, 'D')
 
     def test_it_knows_the_chain_id(self):
-        val = self.data['id']
+        val = self.data['chain']
         ans = 'D'
         self.assertEqual(ans, val)
 
     def test_it_only_has_rows_from_correct_chain(self):
-        val = list(set(self.data['asym_id']))
+        val = list({a['auth_asym_id'] for a in self.data.atoms()})
         ans = ['D']
         self.assertEqual(ans, val)
 
