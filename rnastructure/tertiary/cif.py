@@ -12,18 +12,21 @@ from pdbx.reader.PdbxParser import PdbxReader as Reader
 
 
 class MissingBlockException(Exception):
+
     """This class is raised when trying to get a missing block of data.
     """
     pass
 
 
 class MissingColumn(Exception):
+
     """This is raised when trying to get a missing column from a table.
     """
     pass
 
 
 class ComplexOperatorException(Exception):
+
     """This is raised when we come across complex operators that we cannot
     easily deal with. These tend to show up in viral structures and not things
     we deal with currently.
@@ -36,6 +39,7 @@ class UnusableUnobservedTable(Exception):
 
 
 class ImpossibleUnitIdException(Exception):
+
     """This is raised if we have a unit id that is totally invalid, for
     example, one that is empty or if the PDB is empty.
     """
@@ -52,6 +56,7 @@ def filter_using(iterable, key, target):
 
 
 class CIF(object):
+
     """Top level container for all CIF related data. This assumes that each
     mmCIF file contains a single datablock. This doesn't have to be true but
     makes things easier.
@@ -165,6 +170,7 @@ class CIF(object):
 
 
 class Table(object):
+
     """Container for a single table in the data block. This provides some
     useful methods for accessing the data.
     """
@@ -252,6 +258,7 @@ class GenericMapping(coll.Mapping):
 
 
 class ResidueContainer(object):
+
     def __init__(self, cif, atoms, unobs=None, nonpolymers=False):
         self._cif = cif
 
@@ -324,8 +331,17 @@ class UnitIdGenerator(object):
             else:
                 data.append(None)
 
-        if data[0] is None or set(data).pop() is None:
-            raise ImpossibleUnitIdException()
+        # Convert ? to None for insertion code, since that means not present in
+        # cif files
+        if data[7] == '?':
+            data[7] = None
+
+        if data[0] is None:
+            raise ImpossibleUnitIdException("Can't make Unit id without PDB")
+
+        # Check that both residue level entries are either set or not set
+        if bool(data[3]) != bool(data[4]):
+            raise ImpossibleUnitIdException("Must set both residue level ids")
 
         if short:
             # If no symmetry_operator or the default one, then strip it
@@ -345,7 +361,7 @@ class Symmetry(ResidueContainer, GenericMapping):
 
     def __init__(self, cif, operator, atoms):
         super(Symmetry, self).__init__(cif, atoms)
-        self.inherit({'symmetry_operator': operator['name']})
+        self.inherit({'pdb': cif.name, 'symmetry_operator': operator['name']})
 
     def model(self, number, **kwargs):
         num = str(number)
@@ -459,11 +475,13 @@ class Residue(GenericMapping):
             'pdb': cif.name,
             'model': atoms[0]['pdbx_PDB_model_num'],
             'chain': atoms[0]['auth_asym_id'],
+            'residue': atoms[0]['label_comp_id'],
             'number': atoms[0]['auth_seq_id'],
             'insertion_code': atoms[0]['pdbx_PDB_ins_code'],
             'symmetry_operator': symmetry_operator,
             'residue': atoms[0]['auth_comp_id']
         })
+        print(self._properties)
         self._cif = cif
         self._atoms = atoms
         self.unit_id = func.partial(UnitIdGenerator(), self)
