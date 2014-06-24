@@ -2,10 +2,9 @@
 This module has useful things for processing R3D Align output
 """
 
-import re
 import csv
 
-from rnastructure.tertiary.cif import UnitIdGenerator
+from rnastructure.util.unit_ids import matlab_id_as_unit_id as as_nt_id
 
 
 class UnclearMappingException(Exception):
@@ -37,30 +36,3 @@ def bp2nt(raw):
         seen[nt2] = nt1
         data.append((nt1, nt2))
     return data
-
-
-def as_nt_id(pdb, matlab_id, **kwargs):
-    """Convert one of the matlab ids to something like a unit id. It is likely
-    to be a correct unit id, however by default we are assuming that the
-    symmetry operator is 1_555 and the model is 1. This can be changed with
-    keyword arguments.
-    """
-
-    generator = UnitIdGenerator()
-    parts = matlab_id.split(':')
-    number = parts[1][1:]
-    ins = None
-    if not re.match('\d', number[-1]):
-        ins = number[-1]
-        number = number[:-1]
-
-    data = {
-        'pdb': pdb,
-        'model': 1,
-        'chain': parts[0],
-        'residue': parts[1][0],
-        'number': number,
-        'insertion_code': ins
-    }
-    data.update(kwargs)
-    return generator(data)

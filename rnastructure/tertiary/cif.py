@@ -10,6 +10,8 @@ import itertools as it
 
 from pdbx.reader.PdbxParser import PdbxReader as Reader
 
+from rnastructure.util.unit_ids import UnitIdGenerator
+
 
 class MissingBlockException(Exception):
 
@@ -35,14 +37,6 @@ class ComplexOperatorException(Exception):
 
 
 class UnusableUnobservedTable(Exception):
-    pass
-
-
-class ImpossibleUnitIdException(Exception):
-
-    """This is raised if we have a unit id that is totally invalid, for
-    example, one that is empty or if the PDB is empty.
-    """
     pass
 
 
@@ -315,46 +309,6 @@ class ResidueContainer(object):
         for _, _ in self.__grouped__():
             count += 1
         return count
-
-
-class UnitIdGenerator(object):
-
-    part_ordering = ['pdb', 'model', 'chain', 'residue', 'number', 'atom_name',
-                     'alt_id', 'insertion_code', 'symmetry_operator']
-    seperator = '|'
-
-    def __call__(self, obj, short=True):
-        data = []
-        for part in self.part_ordering:
-            if part in obj and obj[part] is not None:
-                data.append(str(obj[part]))
-            else:
-                data.append(None)
-
-        # Convert ? to None for insertion code, since that means not present in
-        # cif files
-        if data[7] == '?':
-            data[7] = None
-
-        if data[0] is None:
-            raise ImpossibleUnitIdException("Can't make Unit id without PDB")
-
-        # Check that both residue level entries are either set or not set
-        if bool(data[3]) != bool(data[4]):
-            raise ImpossibleUnitIdException("Must set both residue level ids")
-
-        if short:
-            # If no symmetry_operator or the default one, then strip it
-            if data[-1] is None or data[-1] == '1_555':
-                data = data[:-1]
-
-            # Trim out as much as we can
-            while data[-1] is None:
-                data = data[:-1]
-
-        # Sometimes data may be None, so we or it with the empty string to
-        # get a string in all cases.
-        return self.seperator.join([d or '' for d in data])
 
 
 class Symmetry(ResidueContainer, GenericMapping):
