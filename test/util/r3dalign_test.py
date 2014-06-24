@@ -15,3 +15,15 @@ class R3DAlignBP2NTTest(unittest.TestCase):
 
     def test_loads_all_data(self):
         self.assertEqual(3071, len(self.data))
+
+
+class AsNtIdTest(unittest.TestCase):
+    def test_handles_simple_id(self):
+        ans = '1ABC|1|A|A|6'
+        val = r3d.as_nt_id('1ABC', 'A:A6')
+        self.assertEquals(ans, val)
+
+    def test_handles_insertion_code(self):
+        ans = '1ABC|1|A|A|2801|||A'
+        val = r3d.as_nt_id('1ABC', 'A:A2801A')
+        self.assertEquals(ans, val)

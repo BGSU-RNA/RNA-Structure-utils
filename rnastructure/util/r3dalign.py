@@ -2,6 +2,7 @@
 This module has useful things for processing R3D Align output
 """
 
+import re
 import csv
 
 from rnastructure.tertiary.cif import UnitIdGenerator
@@ -47,12 +48,19 @@ def as_nt_id(pdb, matlab_id, **kwargs):
 
     generator = UnitIdGenerator()
     parts = matlab_id.split(':')
+    number = parts[1][1:]
+    ins = None
+    if not re.match('\d', number[-1]):
+        ins = number[-1]
+        number = number[:-1]
+
     data = {
         'pdb': pdb,
         'model': 1,
         'chain': parts[0],
         'residue': parts[1][0],
-        'number': parts[1][1:]
+        'number': number,
+        'insertion_code': ins
     }
     data.update(kwargs)
     return generator(data)

@@ -326,7 +326,7 @@ class UnitIdGenerator(object):
     def __call__(self, obj, short=True):
         data = []
         for part in self.part_ordering:
-            if part in obj:
+            if part in obj and obj[part] is not None:
                 data.append(str(obj[part]))
             else:
                 data.append(None)
