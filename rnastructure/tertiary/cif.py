@@ -12,6 +12,8 @@ from pdbx.reader.PdbxParser import PdbxReader as Reader
 
 from rnastructure.util.unit_ids import UnitIdGenerator
 
+UIDGenerator = UnitIdGenerator()
+
 
 class MissingBlockException(Exception):
 
@@ -234,9 +236,11 @@ class Table(object):
 
 
 class GenericMapping(coll.Mapping):
-    _properties = {}
 
     def inherit(self, obj, **kwargs):
+        if not hasattr(self, '_properties'):
+            self._properties = {}
+
         for key, value in obj.items():
             self._properties[key] = value
         self._properties.update(kwargs)
@@ -264,6 +268,7 @@ class ResidueContainer(object):
 
         self._atoms = atoms
         self._unobs = unobs
+        self._residues = None
 
     @property
     def unobs(self):
@@ -286,18 +291,30 @@ class ResidueContainer(object):
             yield atom
 
     def residues(self):
-        for residue, atoms in self.__grouped__():
-            yield Residue(self._cif, self['symmetry_operator'], list(atoms))
+        if self._residues is None:
+            self._residues = list(self.residue_iterator())
+
+        return self._residues
+
+    def first(self):
+        return self.residue(0)
+
+    def last(self):
+        return self.residue(-1)
 
     def residue(self, target):
-        for index, residue in enumerate(self.residues()):
-            if index == target:
-                return residue
-        raise IndexError()
+        self.residues()
+        return self.residues()[target]
+
+    def residue_iterator(self):
+        sym_op = self['symmetry_operator']
+        cif = self._cif
+        for _, atoms in self.__grouped__():
+            yield Residue(cif, sym_op, list(atoms))
 
     def __grouped__(self):
         fn = lambda r: (r['auth_seq_id'], r['pdbx_PDB_ins_code'])
-        return it.groupby(self.atoms(), fn)
+        return it.groupby(self._atoms, fn)
 
     def __bool__(self):
         return bool(self._atoms)
@@ -305,10 +322,7 @@ class ResidueContainer(object):
     __nonzero__ = __bool__
 
     def __len__(self):
-        count = 0
-        for _, _ in self.__grouped__():
-            count += 1
-        return count
+        return len(self.residues())
 
 
 class Symmetry(ResidueContainer, GenericMapping):
@@ -363,6 +377,7 @@ class Chain(ResidueContainer, GenericMapping):
         super(Chain, self).__init__(cif, atoms, **kwargs)
         self.inherit(model, chain=chain_id)
         self.unit_id = func.partial(UnitIdGenerator(), self)
+        self._sequence = None
 
     def polymers(self):
         """Creates an iterator over each part of the chain which is a polymer.
@@ -418,12 +433,17 @@ class Chain(ResidueContainer, GenericMapping):
     def sequence(self):
         """The sequence of this chain as a array of three letter codes.
         """
-        return [residue['residue'] for residue in self.residues()]
+        if self._sequence is None:
+            self._sequence = [r['residue'] for r in self.residue_iterator()]
+        return self._sequence
 
 
 class Residue(GenericMapping):
 
     def __init__(self, cif, symmetry_operator, atoms):
+        self._cif = cif
+        self._atoms = list(atoms)
+
         super(Residue, self).__init__()
         self.inherit({
             'pdb': cif.name,
@@ -435,10 +455,9 @@ class Residue(GenericMapping):
             'symmetry_operator': symmetry_operator,
             'residue': atoms[0]['auth_comp_id']
         })
-        print(self._properties)
-        self._cif = cif
-        self._atoms = atoms
-        self.unit_id = func.partial(UnitIdGenerator(), self)
+
+    def unit_id(self, **kwargs):
+        return UIDGenerator(self, **kwargs)
 
     def atoms(self):
         for atom in self._atoms:
@@ -446,3 +465,6 @@ class Residue(GenericMapping):
 
     def __len__(self):
         return len(self._atoms)
+
+    def __str__(self):
+        return self.unit_id()

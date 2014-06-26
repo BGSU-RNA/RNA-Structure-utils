@@ -28,3 +28,13 @@ class PolymersTest(unittest.TestCase):
         val = self.data.residue(1).unit_id()
         ans = '1FAT|1|D|ASN|2'
         self.assertEqual(val, ans)
+
+    def test_it_can_get_the_first_residue(self):
+        val = self.data.first().unit_id()
+        ans = '1FAT|1|D|SER|1'
+        self.assertEqual(val, ans)
+
+    def test_it_can_get_the_last_residue(self):
+        val = self.data.last().unit_id()
+        ans = '1FAT|1|D|SER|233'
+        self.assertEqual(val, ans)
