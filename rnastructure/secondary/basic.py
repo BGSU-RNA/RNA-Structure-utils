@@ -77,11 +77,10 @@ class Parser(object):
         the loop.
         """
 
+        sequence = sequence or self.sequence
         if not sequence:
-            if self.sequence:
-                sequence = self.sequence
-            else:
-                raise ValueError("Must specify a sequence")
+            raise ValueError("Must specify a sequence")
+
         if len(self) != len(sequence):
             msg = "Sequence has wrong size, given '%s' expected '%s'"
             raise ValueError(msg % (len(sequence), len(self)))
