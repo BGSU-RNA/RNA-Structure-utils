@@ -39,24 +39,24 @@ class RemovePseudoknots(Base):
                                                 directory=directory,
                                                 time=timeout)
 
-    def _validate_input_(self, raw):
+    def validate_input(self, raw):
         """Ensures that the input is a parsed secondary structure object.
         """
         return isinstance(raw, BaseParser)
 
-    def _generate_arguments_(self, filename, options):
+    def generate_arguments(self, filename, options):
         """Creates the array of arguments to pass to RemovePseudoknots.
         """
         return [filename, self._output]
 
-    def _generate_input_file_(self, input_file, raw):
+    def input_file(self, input_file, raw):
         """Takes the parsed secondary structure and generates the Connect file
         needed for RemovePseudoknots
         """
         formatter = CtWriter()
         formatter.write(input_file, raw)
 
-    def _generate_results_(self, process, temp_dir, filename):
+    def results(self, process, temp_dir, filename):
         """Opens the result of RemovePseudoknots and creates a parsed
         secondary structure from it.
         """

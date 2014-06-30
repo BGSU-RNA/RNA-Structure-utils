@@ -13,7 +13,7 @@ class RNAalifoldGenerateFileTest(unittest.TestCase):
         self.sequences = ["ggggggggggggaaaaaaaacccccccccccc",
                           "ggggggggggggaaaaaaaacccccccccccc"]
         io = StringIO()
-        self.fold._generate_input_file_(io, self.sequences)
+        self.fold.input_file(io, self.sequences)
         self.contents = io.getvalue().split("\n")
         io.close()
 

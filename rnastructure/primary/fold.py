@@ -19,7 +19,7 @@ from rnastructure.util.wrapper import Wrapper
 from rnastructure.util.wrapper import InvalidInputError
 from rnastructure.secondary.connect import Parser as Connect
 from rnastructure.secondary.dot_bracket import Parser as DotBracket
-from rnastructure.secondary.rnaplot import Parser as RNAPlot
+from rnastructure.secondary.rnaplot import PostScriptParser as RNAPlot
 
 
 class FoldingFailedError(Exception):
@@ -43,7 +43,7 @@ class Folder(Wrapper):
         self.sequence_names = []
         super(Folder, self).__init__(name, directory=directory, time=time)
 
-    def _generate_input_file_(self, seq_file, sequence):
+    def input_file(self, seq_file, sequence):
         """Generate a simple fasta like format for the sequences. This differs
         from a strict fasta format in that sequence lines are not wrapped at 80
         characters and there is no way to generate a header.
@@ -53,7 +53,7 @@ class Folder(Wrapper):
         """
         seq_file.write(">sequence\n%s\n" % sequence)
 
-    def _validate_input_(self, sequence):
+    def validate_input(self, sequence):
         """Check that the the sequence is a string, that it has the correct
         length and that it is only composed of A, C, G, U, and '-' ignoring
         case.
@@ -70,7 +70,7 @@ class Folder(Wrapper):
 
         return True
 
-    def _generate_results_(self, process, temp_dir, filename):
+    def results(self, process, temp_dir, filename):
         """Generate a ResultSet object for the results.
 
         :process: The process object.
@@ -89,7 +89,7 @@ class RNAalifold(Folder):
 
     program = 'RNAalifold'
 
-    def _generate_results_(self, process, temp_dir, filename):
+    def results(self, process, temp_dir, filename):
         """This will generate a list of size 1 because RNAalifold only
         generates a single structure. The result will be a Dot-Bracket parser
         with a sequence property set the consensus produced by RNAalifold and
@@ -120,7 +120,7 @@ class RNAalifold(Folder):
         with open(ps_file, 'r') as raw:
             return RNAPlot(raw)
 
-    def _validate_input_(self, sequences):
+    def validate_input(self, sequences):
         """Check that the input is a list of valid sequences of the same
         length.
 
@@ -132,10 +132,10 @@ class RNAalifold(Folder):
         for sequence in sequences:
             if len(sequence) != length:
                 raise InvalidInputError("All sequences have the same length")
-            super(RNAalifold, self)._validate_input_(sequence)
+            super(RNAalifold, self).validate_input(sequence)
         return True
 
-    def _generate_input_file_(self, seq_file, sequences):
+    def input_file(self, seq_file, sequences):
         """This generates a stockholm like format that RNAalifold can read. It
         puts each sequence on a single line, which seems to be acceptable. This
         only generates the required STOCKHOLM 1.0 header and then sequence
