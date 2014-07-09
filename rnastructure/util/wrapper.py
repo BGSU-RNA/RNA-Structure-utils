@@ -191,7 +191,7 @@ class Wrapper(object):
                 opts.append(value)
         return opts
 
-    def stdin(self, raw, options):
+    def stdin(self, temp_dir, raw, options):
         return None
 
     def _program_failed_(self, process):
@@ -202,7 +202,6 @@ class Wrapper(object):
         produced results.
         """
 
-        # Run program
         if not self.program:
             raise ValueError("Must define a program to run.")
 
@@ -219,8 +218,9 @@ class Wrapper(object):
 
         # Write input file
         os.chdir(temp_dir)
-        with open(self._filename, 'w') as input_file:
-            self.input_file(input_file, raw)
+        if self._filename is not None:
+            with open(self._filename, 'w') as input_file:
+                self.input_file(input_file, raw)
 
         # Generate arguments
         arguments = [self.program]
@@ -228,16 +228,25 @@ class Wrapper(object):
         if args:
             arguments.extend(args)
 
-        stdin = self.stdin(raw, options)
+        content = self.stdin(temp_dir, raw, options)
+        stdin = None
+        if content is not None:
+            stdin = PIPE
         process = Popen(arguments, stdout=PIPE, stderr=PIPE, stdin=stdin)
         self.stdout = process.stdout
         self.stderr = process.stderr
+
+        if content is not None:
+            process.stdin.write(content)
 
         # Use select to wait until process is done.
         rlist, wlist, xlist = select.select([process.stderr], [],
                                             [process.stdout, process.stderr],
                                             self._time)
         os.chdir(cur_dir)
+
+        if hasattr(stdin, 'close'):
+            stdin.close()
 
         if not rlist and not wlist and not xlist:
             process.kill()
