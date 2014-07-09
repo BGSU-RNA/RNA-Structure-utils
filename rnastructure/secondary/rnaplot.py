@@ -254,11 +254,22 @@ class RNAplot(wrapper.Wrapper):
     accepted_files = [('rna.ps', PostScriptParser),
                       ('rna.svg', SVGParser)]
 
+    def __init__(self):
+        super(RNAplot, self).__init__(None)
+
     def results(self, process, temp_dir, filename):
-        for filename, klass in self.accepted_files:
+        import glob
+        print(glob.glob(temp_dir + '/*'))
+
+        for name, klass in self.accepted_files:
+            filename = os.path.join(temp_dir, name)
+            print(filename, os.path.isfile(filename))
+
             if os.path.isfile(filename):
                 with open(filename, 'rb') as raw:
                     return klass(raw)
+
+        # os.rmdir(temp_dir)
 
         raise UnimplementedParser("Don't yet have required parser.")
 
@@ -272,11 +283,9 @@ class RNAplot(wrapper.Wrapper):
         return isinstance(raw, basic.Parser) and raw.sequence and \
             len(filter(None, raw.sequence)) == len(raw.sequence)
 
-    def stdin(self, raw, options):
-        with open(self.filename(), 'w') as input_file:
-            input_file.write(raw.sequence)
-            db.Writer().write(input_file, raw)
-            input_file.write('@\n')
+    def stdin(self, temp_dir, raw, options):
+        data = (raw.sequence, db.Writer().format(raw))
+        return "%s\n%s\n@\n" % data
 
     def __call__(self, secondary, **kwargs):
         """Create a drawing of the given secondary structure.
@@ -288,4 +297,4 @@ class RNAplot(wrapper.Wrapper):
         output format.
         :returns: A RNAplot.Parser object representing the diagram.
         """
-        super(RNAplot, self).__call__(secondary, **kwargs)
+        super(RNAplot, self).__call__(secondary, options=kwargs)

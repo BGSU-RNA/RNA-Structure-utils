@@ -2,7 +2,7 @@ from __future__ import with_statement
 
 import unittest
 
-# from rnastructure.secondary import dot_bracket
+from rnastructure.secondary import dot_bracket
 from rnastructure.secondary import rnaplot as rp
 
 
@@ -60,16 +60,18 @@ class SVGParserTest(unittest.TestCase):
         self.assertEqual(ans, val)
 
 
-# class WrapperTest(unittest.TestCase):
-#     def setUp(self):
-#         self.plotter = RNAplot()
-#         self.data = dot_bracket.Parser("((((((((((......))))))))))")
-#         self.data.sequence = "ccccccccccaaaaaagggggggggg"
+class WrapperTest(unittest.TestCase):
+    def setUp(self):
+        self.plotter = rp.RNAplot()
+        self.data = dot_bracket.Parser("((((((((((......))))))))))")
+        self.data.sequence = "ccccccccccaaaaaagggggggggg"
 
-#     def test_draws_using_svg(self):
-#         val = self.plotter(self.data, output_format='svg')
-#         self.fail()
+    # def test_draws_using_svg(self):
+    #     val = self.plotter(self.data, output_format='svg').locations[0:2]
+    #     ans = None
+    #     self.assertEquals(ans, val)
 
-#     def test_draws_using_ps(self):
-#         val = self.plotter(self.data, output_format='ps')
-#         self.fail()
+    # def test_draws_using_ps(self):
+    #     val = self.plotter(self.data, output_format='ps').locations[0:2]
+    #     ans = None
+    #     self.assertEquals(ans, val)
