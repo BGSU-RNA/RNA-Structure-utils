@@ -52,6 +52,7 @@ class GenericIdGenerator(object):
 
     def __init__(self, config):
         self._config = config
+        self._lookups = {}
 
     def insertion_code(self, data):
         if 'insertion_code' not in data:
@@ -62,11 +63,12 @@ class GenericIdGenerator(object):
         return code
 
     def fragments(self, obj, **kwargs):
-
         merged = {}
         for fragment in self._config['fragments']:
             if fragment in obj:
                 merged[fragment] = obj[fragment]
+            elif fragment in self._lookups:
+                merged[fragment] = self._lookups[fragment](obj, **kwargs)
             else:
                 merged[fragment] = kwargs.get(fragment, None)
 
@@ -90,6 +92,9 @@ class GenericIdGenerator(object):
             if data[required] == '':
                 raise MissingRequiredFragment("Given empty %s" % required)
         return True
+
+    def lookup(self, name, func):
+        self._lookups[name] = func
 
 
 class UnitIdGenerator(GenericIdGenerator):

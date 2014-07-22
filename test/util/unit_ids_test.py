@@ -40,6 +40,15 @@ class MatlabIdGeneratorTest(BaseGeneratorTest):
     def test_generates_simple_id(self):
         self.assertEqual(self.simple_id(), 'A:C10')
 
+    def test_can_use_keyword_args(self):
+        data = dict(self.base)
+        data.pop('number')
+        self.assertEquals(self.generator(data, number=3), 'A:C3')
+
+    def test_given_takes_precedence_over_kwargs(self):
+        data = dict(self.base)
+        self.assertEquals(self.generator(data, number=3), 'A:C10')
+
     def test_generates_with_insertion(self):
         self.assertEqual(self.insertion_id(), 'A:C10g')
 
@@ -66,6 +75,15 @@ class NucleotideIdGeneratorTest(BaseGeneratorTest):
 
     def test_generates_simple_id(self):
         self.assertEquals(self.simple_id(), '1GID_BA1_1_A_10_C_')
+
+    def test_can_use_keyword_args(self):
+        data = dict(self.base)
+        data.pop('type')
+        self.assertEquals(self.generator(data, type='AU'), '1GID_AU_1_A_10_C_')
+
+    def test_given_takes_precedence_over_kwargs(self):
+        self.assertEquals(self.generator(self.base, type='AU'),
+                          '1GID_BA1_1_A_10_C_')
 
     def test_generates_with_insertion(self):
         self.assertEquals(self.insertion_id(), '1GID_BA1_1_A_10_C_g')
@@ -99,6 +117,22 @@ class UnitIdGeneratorTest(BaseGeneratorTest):
 
     def test_generates_simple_id(self):
         self.assertEquals(self.simple_id(), '1GID|1|A|C|10')
+
+    def test_generates_using_kwargs(self):
+        data = dict(self.base)
+        data.pop('pdb')
+        self.assertEquals(self.generator(data, pdb='2AW7'), '2AW7|1|A|C|10')
+
+    def test_given_takes_precedence_over_kwargs(self):
+        self.assertEquals(self.generator(self.base, pdb='2AW7'),
+                          '1GID|1|A|C|10')
+
+    def test_can_use_lookup_func(self):
+        data = dict(self.base)
+        data.pop('pdb')
+        self.generator.lookup('pdb', lambda obj, **kw: '1J5E')
+        val = self.generator(data)
+        self.assertEqual(val, '1J5E|1|A|C|10')
 
     def test_generates_with_insertion(self):
         self.assertEquals(self.insertion_id(), '1GID|1|A|C|10|||g')
