@@ -19,23 +19,21 @@ class SimpleCIFTest(unittest.TestCase):
 
     def test_gets_table_with_leading_underscore(self):
         val = self.cif.table('_pdbx_poly_seq_scheme')
-        self.assertIsNotNone(val)
+        self.assertTrue(val is not None)
 
     def test_gets_table_without_leading_underscore(self):
         val = self.cif.table('pdbx_poly_seq_scheme')
-        self.assertIsNotNone(val)
+        self.assertTrue(val is not None)
 
     def test_attribute_gives_table(self):
         val = self.cif.pdbx_poly_seq_scheme
-        self.assertIsNotNone(val)
+        self.assertTrue(val is not None)
 
     def test_fails_getting_unknown_table(self):
-        with self.assertRaises(MissingBlockException):
-            self.cif.table('bob')
+        self.assertRaises(MissingBlockException, self.cif.table, 'bob')
 
     def test_raises_key_when_getting_missing_attribute(self):
-        with self.assertRaises(AttributeError):
-            self.cif.bob
+        self.assertRaises(AttributeError, lambda: self.cif.bob)
 
 
 class SimpleTableTest(unittest.TestCase):
@@ -83,8 +81,7 @@ class SimpleTableTest(unittest.TestCase):
         self.assertEqual(val, ans)
 
     def test_fails_getting_too_large_row(self):
-        with self.assertRaises(IndexError):
-            self.data.rows[9000]
+        self.assertRaises(IndexError, lambda: self.data.rows[9000])
 
     def test_iterates_over_all_rows(self):
         ans = 1008
@@ -97,8 +94,7 @@ class SimpleTableTest(unittest.TestCase):
         self.assertEqual(val, ans)
 
     def test_fails_getting_missing_column(self):
-        with self.assertRaises(MissingColumn):
-            self.data.column('bob')
+        self.assertRaises(MissingColumn, self.data.column, 'bob')
 
     def test_get_item_can_give_row(self):
         ans = {
@@ -134,16 +130,13 @@ class SimpleTableTest(unittest.TestCase):
         self.assertEqual(val, ans)
 
     def test_get_item_on_missing_string_gives_key(self):
-        with self.assertRaises(KeyError):
-            self.data['bob']
+        self.assertRaises(KeyError, lambda: self.data['bob'])
 
     def test_dot_on_missing_column_gives_attribute(self):
-        with self.assertRaises(AttributeError):
-            self.data.bob
+        self.assertRaises(AttributeError, lambda: self.data.bob)
 
     def test_get_item_on_too_big_int_gives_index(self):
-        with self.assertRaises(IndexError):
-            self.data[90000]
+        self.assertRaises(IndexError, lambda: self.data[90000])
 
 
 class SimpleSymmetryTest(unittest.TestCase):
@@ -176,7 +169,7 @@ class SimpleSymmetryTest(unittest.TestCase):
 
     def test_it_gives_none_for_missing_model(self):
         val = self.operators[0].model('bob')
-        self.assertIsNone(val)
+        self.assertTrue(val is None)
 
     def test_it_gets_all_models(self):
         val = len(list(self.operators[0].models()))
@@ -277,7 +270,7 @@ class CifPolymersTest(unittest.TestCase):
         self.data = self.cif.chain('1_555', '1', 'D').polymers()
 
     def test_gets_all_polymers_in_all_chains(self):
-        val = sorted(list({poly['chain'] for poly in self.cif.polymers()}))
+        val = sorted(set([poly['chain'] for poly in self.cif.polymers()]))
         ans = ['A', 'B', 'C', 'D']
         self.assertEqual(val, ans)
 

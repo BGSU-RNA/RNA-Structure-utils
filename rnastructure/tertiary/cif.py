@@ -68,7 +68,7 @@ class CIF(object):
         self._entities = self.__load_entities__()
 
     def __load_assemblies__(self):
-        operators = {op['id']: op for op in self.pdbx_struct_oper_list}
+        operators = dict((op['id'], op) for op in self.pdbx_struct_oper_list)
         assemblies = coll.defaultdict(list)
         for assembly in self.pdbx_struct_assembly_gen:
             operator = assembly['oper_expression']

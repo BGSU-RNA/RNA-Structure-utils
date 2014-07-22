@@ -20,7 +20,7 @@ class PolymersTest(unittest.TestCase):
         self.assertEqual(ans, val)
 
     def test_it_only_has_rows_from_correct_chain(self):
-        val = list({a['auth_asym_id'] for a in self.data.atoms()})
+        val = list(set([a['auth_asym_id'] for a in self.data.atoms()]))
         ans = ['D']
         self.assertEqual(ans, val)
 

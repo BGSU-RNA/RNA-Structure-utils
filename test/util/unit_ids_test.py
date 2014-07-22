@@ -1,6 +1,5 @@
 import unittest
 
-
 import rnastructure.util.unit_ids as uid
 
 
@@ -48,16 +47,13 @@ class MatlabIdGeneratorTest(BaseGeneratorTest):
         self.assertEqual(self.qmark_insertion(), 'A:C10')
 
     def test_fails_without_chain(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('chain')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'chain')
 
     def test_fails_without_residue(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('residue')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'residue')
 
     def test_fails_without_number(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('number')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'number')
 
     def test_succeeds_without_pdb(self):
         self.assertEqual(self.missing('pdb'), 'A:C10')
@@ -78,31 +74,26 @@ class NucleotideIdGeneratorTest(BaseGeneratorTest):
         self.assertEquals(self.qmark_insertion(), '1GID_BA1_1_A_10_C_')
 
     def test_fails_without_pdb(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('pdb')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'pdb')
 
     def test_fails_without_model(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('model')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'model')
 
     def test_fails_without_type(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('type')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'type')
 
     def test_fails_without_chain(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('chain')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'chain')
 
     def test_fails_without_residue(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('residue')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'residue')
 
     def test_fails_without_number(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('number')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'number')
 
 
 class UnitIdGeneratorTest(BaseGeneratorTest):
+
     def setUp(self):
         self.generator = uid.UnitIdGenerator()
 
@@ -120,24 +111,19 @@ class UnitIdGeneratorTest(BaseGeneratorTest):
                           '1GID|1|A|C|10||||2_555')
 
     def test_fails_without_pdb(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('pdb')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'pdb')
 
     def test_fails_without_model(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('model')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'model')
 
     def test_fails_without_chain(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('chain')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'chain')
 
     def test_fails_without_number(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('number')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'number')
 
     def test_fails_without_residue(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('residue')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'residue')
 
     def test_works_without_residue_and_number(self):
         self.assertEquals(self.missing('residue', 'number'), '1GID|1|A')
@@ -150,6 +136,5 @@ class UnitIdGeneratorTest(BaseGeneratorTest):
                           '1GID')
 
     def test_fails_with_missing_many_and_non_standard_symmetry(self):
-        with self.assertRaises(uid.MissingRequiredFragment):
-            self.missing('residue', 'number', 'chain', 'model',
-                         symmetry_operator='2_555')
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'residue', 'number', 'chain', 'model',
+                          symmetry_operator='2_555')

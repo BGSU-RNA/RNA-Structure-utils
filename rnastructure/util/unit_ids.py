@@ -122,7 +122,7 @@ class UnitIdParser(object):
 
     def __call__(self, unit_id):
         parts = unit_id.split(UNIT_ID['separator'])
-        data = {name: None for name in UNIT_ID['fragments']}
+        data = dict((name, None) for name in UNIT_ID['fragments'])
         for index, part in enumerate(parts):
             name = UNIT_ID['fragments'][index]
             data[name] = part
