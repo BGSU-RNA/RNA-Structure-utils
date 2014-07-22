@@ -136,5 +136,16 @@ class UnitIdGeneratorTest(BaseGeneratorTest):
                           '1GID')
 
     def test_fails_with_missing_many_and_non_standard_symmetry(self):
-        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'residue', 'number', 'chain', 'model',
+        self.assertRaises(uid.MissingRequiredFragment, self.missing, 'residue',
+                          'number', 'chain', 'model',
                           symmetry_operator='2_555')
+
+
+class GeneratedConverterTest(unittest.TestCase):
+    def setUp(self):
+        self.converter = uid.generate_converter('unit', 'nucleotide')
+
+    def test_converts_using_arguments(self):
+        val = self.converter('2AW7|1|A|G|11', type='AU')
+        ans = '2AW7_AU_1_A_11_G_'
+        self.assertEqual(ans, val)

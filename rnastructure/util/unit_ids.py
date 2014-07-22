@@ -61,21 +61,29 @@ class GenericIdGenerator(object):
             return None
         return code
 
-    def fragments(self, obj):
-        self.check_required(obj)
+    def fragments(self, obj, **kwargs):
+
+        merged = {}
+        for fragment in self._config['fragments']:
+            if fragment in obj:
+                merged[fragment] = obj[fragment]
+            else:
+                merged[fragment] = kwargs.get(fragment, None)
+
+        self.check_required(merged)
         data = []
         for fragment in self._config['fragments']:
             if fragment == 'insertion_code':
-                data.append(self.insertion_code(obj))
-            elif fragment not in obj:
+                data.append(self.insertion_code(merged))
+            elif fragment not in merged:
                 data.append(None)
-            elif obj[fragment] is None:
+            elif merged[fragment] is None:
                 data.append(None)
             else:
-                data.append(str(obj[fragment]))
+                data.append(str(merged[fragment]))
         return data
 
-    def check_required(self, data):
+    def check_required(self, data, **kwargs):
         for required in self._config['required']:
             if required not in data or data[required] is None:
                 raise MissingRequiredFragment("Missing required %s" % required)
@@ -89,8 +97,8 @@ class UnitIdGenerator(GenericIdGenerator):
     def __init__(self):
         super(UnitIdGenerator, self).__init__(UNIT_ID)
 
-    def __call__(self, obj, short=True):
-        data = self.fragments(obj)
+    def __call__(self, obj, short=True, **kwargs):
+        data = self.fragments(obj, **kwargs)
 
         # Check that both residue level entries are either set or not set
         if bool(data[3]) != bool(data[4]):
@@ -158,8 +166,8 @@ class MatlabIdGenerator(GenericIdGenerator):
     def __init__(self):
         super(MatlabIdGenerator, self).__init__(MATLAB_ID)
 
-    def __call__(self, data):
-        raw = self.fragments(data)
+    def __call__(self, data, **kwargs):
+        raw = self.fragments(data, **kwargs)
         if raw[-1] is None:
             raw.pop(-1)
         return ':'.join([raw.pop(0), ''.join(raw)])
@@ -178,8 +186,8 @@ class NucleotideIdGenerator(GenericIdGenerator):
     def __init__(self):
         super(NucleotideIdGenerator, self).__init__(NUCLEOTIDE_ID)
 
-    def __call__(self, data):
-        fragments = self.fragments(data)
+    def __call__(self, data, **kwargs):
+        fragments = self.fragments(data, **kwargs)
         if fragments[-1] is None:
             fragments[-1] = ''
         return NUCLEOTIDE_ID['separator'].join(fragments)
@@ -228,7 +236,8 @@ def generate_converter(input_type, output_type, **kwargs):
         parser = UnitIdParser()
     elif input_type == 'matlab':
         parser = MatlabIdParser()
-    elif input_type == 'nucleotide' or input_type == 'old':
+    elif input_type == 'nucleotide' or input_type == 'old' \
+            or input_type == 'nt':
         parser = NucleotideIdParser()
     else:
         raise InvalidUnitType("Input type %s is unknown" % input_type)
@@ -238,9 +247,10 @@ def generate_converter(input_type, output_type, **kwargs):
         writer = UnitIdGenerator()
     elif output_type == 'matlab':
         writer = MatlabIdGenerator()
-    elif output_type == 'nucleotide' or output_type == 'old':
+    elif output_type == 'nucleotide' or output_type == 'old' \
+            or input_type == 'nt':
         writer = NucleotideIdGenerator()
     else:
         raise InvalidUnitType("Output type %s is unknown" % output_type)
 
-    return lambda string: writer(parser(string))
+    return lambda string, **kwargs: writer(parser(string), **kwargs)
