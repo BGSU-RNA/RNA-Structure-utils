@@ -58,7 +58,7 @@ class GenericIdGenerator(object):
         if 'insertion_code' not in data:
             return None
         code = data['insertion_code']
-        if code == '?' or not code:
+        if code == '?' or not code or not code.strip():
             return None
         return code
 

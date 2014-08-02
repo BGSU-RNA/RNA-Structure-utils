@@ -32,6 +32,27 @@ class BaseGeneratorTest(unittest.TestCase):
         return self.generator(data)
 
 
+class GenericIdGeneratorTest(unittest.TestCase):
+    def setUp(self):
+        self.generator = uid.GenericIdGenerator({})
+
+    def test_creates_none_insertion_code_for_qmark(self):
+        val = self.generator.insertion_code({'insertion_code': '?'})
+        self.assertTrue(val is None)
+
+    def test_gives_none_insertion_code_for_spaces(self):
+        val = self.generator.insertion_code({'insertion_code': ' '})
+        self.assertTrue(val is None)
+
+    def test_gives_none_insertion_code_for_empty(self):
+        val = self.generator.insertion_code({'insertion_code': ''})
+        self.assertTrue(val is None)
+
+    def test_gives_none_for_missing_insertion_code(self):
+        val = self.generator.insertion_code({})
+        self.assertTrue(val is None)
+
+
 class MatlabIdGeneratorTest(BaseGeneratorTest):
 
     def setUp(self):
