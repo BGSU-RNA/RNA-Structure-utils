@@ -82,7 +82,10 @@ class GenericIdGenerator(object):
             elif merged[fragment] is None:
                 data.append(None)
             else:
-                data.append(str(merged[fragment]))
+                value = str(merged[fragment])
+                if fragment == 'pdb':
+                    value = value.upper()
+                data.append(value)
         return data
 
     def check_required(self, data, **kwargs):

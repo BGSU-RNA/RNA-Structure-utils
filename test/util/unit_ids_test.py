@@ -5,7 +5,7 @@ import rnastructure.util.unit_ids as uid
 
 class BaseGeneratorTest(unittest.TestCase):
 
-    base = {'pdb': '1GID', 'type': 'BA1', 'model': 1, 'chain': 'A',
+    base = {'pdb': '1gid', 'type': 'BA1', 'model': 1, 'chain': 'A',
             'residue': 'C', 'number': 10}
 
     def simple_id(self):
