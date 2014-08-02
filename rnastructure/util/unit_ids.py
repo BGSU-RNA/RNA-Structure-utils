@@ -60,7 +60,7 @@ class GenericIdGenerator(object):
         code = data['insertion_code']
         if code == '?' or not code or not code.strip():
             return None
-        return code
+        return code.strip()
 
     def fragments(self, obj, **kwargs):
         merged = {}

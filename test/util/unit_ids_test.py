@@ -52,6 +52,14 @@ class GenericIdGeneratorTest(unittest.TestCase):
         val = self.generator.insertion_code({})
         self.assertTrue(val is None)
 
+    def test_strips_whitespace_from_insertion_codes(self):
+        val = self.generator.insertion_code({'insertion_code': 'A '})
+        self.assertEqual('A', val)
+
+    def test_returns_valid_insertion_code(self):
+        val = self.generator.insertion_code({'insertion_code': 'A'})
+        self.assertEqual('A', val)
+
 
 class MatlabIdGeneratorTest(BaseGeneratorTest):
 
