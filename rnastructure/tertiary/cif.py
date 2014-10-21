@@ -379,6 +379,54 @@ class Chain(ResidueContainer, GenericMapping):
         self.unit_id = func.partial(UnitIdGenerator(), self)
         self._sequence = None
 
+    def experimental_sequence(self):
+        sequence = []
+        for row in self.cif.pdbx_poly_seq_scheme:
+            if self['chain'] != row['asym_id']:
+                continue
+            sequence.append(row['mon_id'])
+        return sequence
+
+    def experimental_sequence_mapping(self):
+        mapping = []
+        seen = set()
+        for row in self._cif.pdbx_poly_seq_scheme:
+            if self['chain'] != row['asym_id']:
+                continue
+
+            insertion_code = row['pdb_ins_code']
+            if insertion_code == '.':
+                insertion_code = None
+
+            auth_number = row['auth_seq_num']
+            if auth_number == '?':
+                unit_id = None
+            else:
+                unit_id = UIDGenerator({
+                    'pdb': self['pdb'],
+                    'model': self['model'],
+                    'chain': self['chain'],
+                    'residue': row['auth_mon_id'],
+                    'number': auth_number,
+                    'insertion_code': insertion_code,
+                    'symmetry_operator': self['symmetry_operator'],
+                })
+
+            seq_id = '%s|Sequence|%s|%s|%s|%s' % (self['pdb'], self['model'],
+                                                  self['chain'], row['mon_id'],
+                                                  row['seq_id'])
+
+            if seq_id in seen:
+                raise ValueError("Can't map one sequence residue twice")
+            if unit_id and unit_id in seen:
+                raise ValueError("Can't map unit %s twice", unit_id)
+
+            seen.add(seq_id)
+            seen.add(unit_id)
+            mapping.append((row['mon_id'], seq_id, unit_id))
+
+        return mapping
+
     def polymers(self):
         """Creates an iterator over each part of the chain which is a polymer.
         That means it is connected and marked as a polymer in the file. Any
