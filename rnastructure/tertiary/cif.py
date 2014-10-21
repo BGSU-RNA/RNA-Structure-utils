@@ -449,7 +449,6 @@ class Residue(GenericMapping):
             'pdb': cif.name,
             'model': atoms[0]['pdbx_PDB_model_num'],
             'chain': atoms[0]['auth_asym_id'],
-            'residue': atoms[0]['label_comp_id'],
             'number': atoms[0]['auth_seq_id'],
             'insertion_code': atoms[0]['pdbx_PDB_ins_code'],
             'symmetry_operator': symmetry_operator,
