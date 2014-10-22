@@ -412,9 +412,8 @@ class Chain(ResidueContainer, GenericMapping):
                     'symmetry_operator': self['symmetry_operator'],
                 })
 
-            seq_id = '%s|Sequence|%s|%s|%s|%s' % (self['pdb'], self['model'],
-                                                  self['chain'], row['mon_id'],
-                                                  row['seq_id'])
+            seq_id = '%s|Sequence|%s|%s|%s' % (self['pdb'], self['chain'],
+                                               row['mon_id'], row['seq_id'])
 
             if seq_id in seen:
                 raise ValueError("Can't map one sequence residue twice")
