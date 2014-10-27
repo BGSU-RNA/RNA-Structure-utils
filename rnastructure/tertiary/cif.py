@@ -381,7 +381,7 @@ class Chain(ResidueContainer, GenericMapping):
 
     def experimental_sequence(self):
         sequence = []
-        for row in self.cif.pdbx_poly_seq_scheme:
+        for row in self._cif.pdbx_poly_seq_scheme:
             if self['chain'] != row['asym_id']:
                 continue
             sequence.append(row['mon_id'])
