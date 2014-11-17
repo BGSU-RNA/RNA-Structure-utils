@@ -20,6 +20,12 @@ MATLAB_ID = {
     'required': ['chain', 'residue', 'number'],
 }
 
+DSSR_ID = {
+    'fragments': ['chain', 'residue', 'number', 'insertion_code'],
+    'separator': ('.', '', '^'),
+    'required': ['chain', 'residue', 'number']
+}
+
 
 class ImpossibleNucleotideIdException(Exception):
     """This is raised if we have a nucleotide id that is totally invalid, for
@@ -199,6 +205,68 @@ class NucleotideIdGenerator(GenericIdGenerator):
         if fragments[-1] is None:
             fragments[-1] = ''
         return NUCLEOTIDE_ID['separator'].join(fragments)
+
+
+class DssrIdParser(object):
+    """
+    This attempts to parse a dssr style nt id. Be aware that this is a bit
+    unreliable. The reason is that this program can read modified bases and
+    does not place a seperator between residue and number. So in cases like AP7
+    we may not be able to tell where the residue ends and the number begins.
+    This is likely to not be too much of an issue but may cause problems. In
+    order to deal with this we must be given a list of modified residue names.
+    When parsing this will select the longest matching residue name as the
+    residue by default. This can be changed by setting use_longest to False
+    when constructing the parser, which will force this to use the shortest
+    match.
+    """
+
+    def __init__(self, use_longest=True, modified=[]):
+        self.units = ['A', 'C', 'G', 'U']
+        self.units.extend(modified)
+        self._use_longest = use_longest
+
+    def __unit__(self, part):
+        matches = [unit for unit in self.units if re.match(unit, part)]
+
+        func = min
+        if self._use_longest:
+            func = max
+        print(matches)
+        return func(matches, key=lambda m: len(m))
+
+    def __call__(self, raw, **kwargs):
+        chain, rest = raw.split('.')
+        ins_code = None
+        if '^' in rest:
+            rest, ins_code = rest.split('^')
+        residue = self.__unit__(rest)
+        number = rest.replace(residue, '')
+
+        data = {
+            'chain': chain,
+            'number': number,
+            'residue': residue,
+            'insertion_code': ins_code
+        }
+        data.update(kwargs)
+        return data
+
+
+class DssrIdGenerator(GenericIdGenerator):
+    def __init__(self):
+        super(DssrIdParser, self).__init__(DSSR_ID)
+
+    def __call__(self, data, **kwargs):
+        raw = self.fragments(data, **kwargs)
+        chain_sep = DSSR_ID['seperator'][0]
+        res_sep = DSSR_ID['seperator'][1]
+        dssr = [raw['chain'], chain_sep, raw['residue'],
+                res_sep, raw['number']]
+        if raw[-1] is not None:
+            dssr.append(DSSR_ID['seperator'][2])
+            dssr.append(raw['insertion_code'])
+        return ''.join(dssr)
 
 
 def matlab_id_as_unit_id(pdb, matlab_id, **kwargs):

@@ -212,3 +212,35 @@ class GeneratedConverterTest(unittest.TestCase):
         val = self.converter('2AW7|1|A|G|11', type='AU')
         ans = '2AW7_AU_1_A_11_G_'
         self.assertEqual(ans, val)
+
+
+class DssrParserTest(unittest.TestCase):
+    def setUp(self):
+        self.parser = uid.DssrIdParser()
+
+    def test_can_parse_a_simple_id(self):
+        val = self.parser('9.C35')
+        ans = {'chain': '9', 'residue': 'C', 'number': '35',
+               'insertion_code': None}
+        self.assertEqual(ans, val)
+
+    def test_can_parse_with_insertion_code(self):
+        val = self.parser('A.U5^J')
+        ans = {'chain': 'A', 'residue': 'U', 'number': '5',
+               'insertion_code': 'J'}
+        self.assertEqual(ans, val)
+
+    def test_can_parse_with_modified_residues(self):
+        self.parser.units.append('AP7')
+        val = self.parser('A.AP75^J')
+        ans = {'chain': 'A', 'residue': 'AP7', 'number': '5',
+               'insertion_code': 'J'}
+        self.assertEqual(ans, val)
+
+    def test_will_use_shortest_if_requested(self):
+        self.parser._use_longest = False
+        self.parser.units.append('AP7')
+        val = self.parser('A.AP75^J')
+        ans = {'chain': 'A', 'residue': 'A', 'number': 'P75',
+               'insertion_code': 'J'}
+        self.assertEqual(ans, val)
