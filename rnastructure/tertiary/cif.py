@@ -377,12 +377,15 @@ class Chain(ResidueContainer, GenericMapping):
         super(Chain, self).__init__(cif, atoms, **kwargs)
         self.inherit(model, chain=chain_id)
         self.unit_id = func.partial(UnitIdGenerator(), self)
+        self.label_asym_id = None
+        if self._atoms:
+            self.label_asym_id = self._atoms[0]['label_asym_id']
         self._sequence = None
 
     def experimental_sequence(self):
         sequence = []
         for row in self._cif.pdbx_poly_seq_scheme:
-            if self['chain'] != row['asym_id']:
+            if self.label_asym_id != row['asym_id']:
                 continue
             sequence.append(row['mon_id'])
         return sequence
@@ -391,7 +394,7 @@ class Chain(ResidueContainer, GenericMapping):
         mapping = []
         seen = set()
         for row in self._cif.pdbx_poly_seq_scheme:
-            if self['chain'] != row['asym_id']:
+            if self.label_asym_id != row['asym_id']:
                 continue
 
             insertion_code = row['pdb_ins_code']
