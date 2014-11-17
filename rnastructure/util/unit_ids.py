@@ -219,20 +219,29 @@ class DssrIdParser(object):
     residue by default. This can be changed by setting use_longest to False
     when constructing the parser, which will force this to use the shortest
     match.
+
+    There is also a infer_residue option which will attempt to find the last
+    letter in the residue/number part and use everything up there as the
+    residue. This will work for many, but not all modified bases.
     """
 
-    def __init__(self, use_longest=True, modified=[]):
+    def __init__(self, use_longest=True, infer_residue=False, modified=[]):
         self.units = ['A', 'C', 'G', 'U']
         self.units.extend(modified)
         self._use_longest = use_longest
+        self._infer_residue = infer_residue
 
     def __unit__(self, part):
+        if self._infer_residue:
+            match = re.search('([a-zA-Z])', part[::-1])
+            stop = len(part) - match.end(1) + 1
+            return part[:stop]
+
         matches = [unit for unit in self.units if re.match(unit, part)]
 
         func = min
         if self._use_longest:
             func = max
-        print(matches)
         return func(matches, key=lambda m: len(m))
 
     def __call__(self, raw, **kwargs):

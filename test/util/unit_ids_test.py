@@ -244,3 +244,17 @@ class DssrParserTest(unittest.TestCase):
         ans = {'chain': 'A', 'residue': 'A', 'number': 'P75',
                'insertion_code': 'J'}
         self.assertEqual(ans, val)
+
+    def test_can_infer_a_match_with_letters_only(self):
+        self.parser._infer_residue = True
+        val = self.parser('A.IG5^J')
+        ans = {'chain': 'A', 'residue': 'IG', 'number': '5',
+               'insertion_code': 'J'}
+        self.assertEqual(ans, val)
+
+    def test_can_infer_a_match_with_numbers(self):
+        self.parser._infer_residue = True
+        val = self.parser('A.A73J5^J')
+        ans = {'chain': 'A', 'residue': 'A73J', 'number': '5',
+               'insertion_code': 'J'}
+        self.assertEqual(ans, val)
