@@ -74,7 +74,9 @@ class Parser(object):
 
         :sequence: Sequence to extract loops from.
         :flanking: True if we wish to extract the flanking basepairs as well as
-        the loop.
+        the loop. If given an integer it will extract that many basepairs
+        outside the loop. 1 will select the flanking only and is equivelant to
+        giving True.
         """
 
         sequence = sequence or self.sequence
@@ -107,7 +109,7 @@ class Parser(object):
         """
         return self._pairs[index]
 
-    def __flanking(self, part):
+    def __flanking(self, part, count):
         """Get the flanking indices for the given part.
         """
         if not part:
@@ -116,18 +118,20 @@ class Parser(object):
         left = part[0]
         right = part[-1]
         if left > 0:
-            flank.insert(0, left - 1)
+            for index in range(1, count + 1):
+                flank.insert(0, left - index)
         if right + 1 < len(self):
-            flank.append(right + 1)
+            for index in range(1, count + 1):
+                flank.append(right + index)
         return flank
 
-    def __internal_flanking(self, loop):
+    def __internal_flanking(self, loop, count):
         """Compute the flanking base pairs for the given internal loop.
         """
-        left = self.__flanking(loop[0])
+        left = self.__flanking(loop[0], count)
         right = []
         if len(loop) > 1:
-            right = self.__flanking(loop[1])
+            right = self.__flanking(loop[1], count)
         if not left:
             left = [self.paired_base(right[-1]), self.paired_base(right[0])]
         if not right:
@@ -146,17 +150,21 @@ class Parser(object):
         if not flanking:
             return self._loops
 
+        flank_count = int(flanking)
+        if flank_count <= 0:
+            raise ValueError("Cannot select flanking < 0")
+
         all_loops = {}
         for name, loops in self._loops.items():
             all_loops[name] = []
             for loop in loops:
                 flank = None
                 if name == "hairpins":
-                    flank = self.__flanking(loop)
+                    flank = self.__flanking(loop, flank_count)
                 elif name == 'internal':
-                    flank = self.__internal_flanking(loop)
+                    flank = self.__internal_flanking(loop, flank_count)
                 else:
-                    flank = tuple([self.__flanking(l) for l in loop])
+                    flank = tuple([self.__flanking(l, flank_count) for l in loop])
                 all_loops[name].append(flank)
         return all_loops
 

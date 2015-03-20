@@ -1,4 +1,5 @@
 import unittest
+from nose import SkipTest
 
 from rnastructure.secondary.basic import Parser
 from rnastructure.secondary.basic import EmptyStructureError
@@ -35,12 +36,20 @@ class SimpleIndicesTest(unittest.TestCase):
         val = self.parser.loops(self.sequence, flanking=True)
         self.assertEqual(val['hairpin'], ans)
 
+    def test_extended_flanking_sequences(self):
+        val = self.parser.loops(self.sequence, flanking=2)
+        self.assertEqual(['cugcc'], val['hairpin'])
+
+    def test_fails_if_flanking_too_long(self):
+        self.assertRaises(Exception, self.parser.loops, self.sequence,
+                          flanking=12)
+
 
 class MultiLoopTest(unittest.TestCase):
     def setUp(self):
         self.pairs = [26, 25, None, None, 13, 12, None, 11, None, None, None,
-                     7, 5, 4, None, 23, None, 21, None, None, None, 17, None,
-                     15, None, 1, 0]
+                      7, 5, 4, None, 23, None, 21, None, None, None, 17, None,
+                      15, None, 1, 0]
         self.parser = Parser(self.pairs)
         self.indices = self.parser.indices()
 
