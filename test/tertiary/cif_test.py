@@ -259,6 +259,28 @@ class SimplePolymerChainTest(unittest.TestCase):
         self.assertFalse(self.chain.polymer(1).has_breaks())
 
 
+class CifPolymersWithInsCodeTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with open('files/2UUA.cif', 'rb') as raw:
+            cls.data = CIF(raw)
+
+    def setUp(self):
+        self.cif = self.__class__.data
+        self.data = list(self.cif.chain('1_555', '1', 'A').polymers())
+
+    def test_can_get_chain_breaks_with_ins_code(self):
+        val = [poly["chain"] for poly in self.data]
+        ans = ['A', 'A']
+        for poly in self.data:
+            print(poly.residue(0))
+            print(poly.residue(-1))
+            if len(poly) < 10:
+                print(poly.sequence)
+            print(len(poly))
+        self.assertEqual(ans, val)
+
+
 class CifPolymersTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -276,7 +298,7 @@ class CifPolymersTest(unittest.TestCase):
 
     def test_gets_requested_chain_polymer(self):
         val = [poly['chain'] for poly in self.data]
-        ans = ["D", "D"]
+        ans = ['D', 'D']
         self.assertEqual(val, ans)
 
     def test_finds_polymer_sequence(self):
