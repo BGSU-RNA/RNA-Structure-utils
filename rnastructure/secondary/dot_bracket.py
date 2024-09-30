@@ -1,5 +1,6 @@
-import string
 from collections import defaultdict
+import string
+import sys
 
 import rnastructure.secondary.basic as basic
 
@@ -46,13 +47,22 @@ class Parser(basic.Parser):
     [, ], and }.
     """
 
-    dialects = {
-        'simple': Dialect('.:-', '(<', '>)', '{[', ']}'),
-        'generic': Dialect('.:-', '(<', '>)', '{[' + string.uppercase,
-                           string.lowercase[::-1] + ']}'),
-        'rfam': Dialect('.;', '(<[{', '}]>)', string.uppercase,
-                        string.lowercase[::-1]),
-    }
+    if sys.version_info[0] < 3:
+        dialects = {
+            'simple': Dialect('.:-', '(<', '>)', '{[', ']}'),
+            'generic': Dialect('.:-', '(<', '>)', '{[' + string.uppercase,
+                               string.lowercase[::-1] + ']}'),
+            'rfam': Dialect('.;', '(<[{', '}]>)', string.uppercase,
+                            string.lowercase[::-1]),
+        }
+    else:
+        dialects = {
+            'simple': Dialect('.:-', '(<', '>)', '{[', ']}'),
+            'generic': Dialect('.:-', '(<', '>)', '{[' + string.ascii_uppercase,
+                               string.ascii_lowercase[::-1] + ']}'),
+            'rfam': Dialect('.;', '(<[{', '}]>)', string.ascii_uppercase,
+                            string.ascii_lowercase[::-1]),
+        }
 
     def __init__(self, structure, dialect='generic'):
         """Construct a new Parser object with the given structure.
