@@ -1,5 +1,5 @@
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
 from rnastructure.primary.fold import UNAFold
 from rnastructure.primary.fold import RNAalifold
