@@ -1,3 +1,6 @@
+# python3 -m unittest test.secondary.dot_bracket_test
+# python3 -m unittest dot_bracket_test
+
 import unittest
 
 from rnastructure.secondary.dot_bracket import Parser
@@ -67,6 +70,7 @@ class SimpleParserTest(unittest.TestCase):
 
     def test_internal(self):
         ans = [([2, 3], [10, 11, 12, 13])]
+        ans = [(range(2,4), range(10,14))]
         print(self.parser._tree.print_tree())
         self.assertEqual(self.loops['internal'], ans)
 

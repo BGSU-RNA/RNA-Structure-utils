@@ -1,6 +1,6 @@
 import unittest
 
-from StringIO import StringIO
+from io import StringIO
 
 from rnastructure.secondary import dot_bracket as DB
 
@@ -35,7 +35,7 @@ class ConnectWriterTest(unittest.TestCase):
         self.connect = self.writer.format(dot_parser)
 
     def test_formats_correctly(self):
-        ans = ['6 Energy = ', 
+        ans = ['6 Energy = ',
                '1\tc\t0\t2\t6\t1',
                '2\tc\t1\t3\t5\t2',
                '3\ta\t2\t4\t0\t3',
@@ -60,7 +60,7 @@ class ConnectWriterTest(unittest.TestCase):
         self.connect = self.writer.format(dot_parser)
 
     def test_formats_correctly(self):
-        ans = ['6 Energy = ', 
+        ans = ['6 Energy = ',
                '1\t?\t0\t2\t6\t1',
                '2\t?\t1\t3\t5\t2',
                '3\t?\t2\t4\t0\t3',
