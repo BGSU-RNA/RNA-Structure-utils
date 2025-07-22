@@ -86,7 +86,9 @@ class Parser(basic.Parser):
         return super(Parser, self).__getattr(attr)
 
     def __pairs__(self, structure):
-        """Compute which bases are paired in the 2D structure.
+        """
+        Compute which bases are paired in the 2D structure.
+        Output list pairs entry i equal to j means there is a pair between i and j.
         """
         helix_stack = []
         knot_stacks = defaultdict(list)
@@ -110,6 +112,9 @@ class Parser(basic.Parser):
                 pairs[index] = left
             else:
                 raise ValueError("Unknown character: '%s'" % char)
+
+        # print('dot_bracket __pairs__ pairs:', pairs)
+
         return pairs
 
 
