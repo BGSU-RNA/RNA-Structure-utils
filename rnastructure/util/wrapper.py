@@ -182,7 +182,7 @@ class Wrapper(object):
         :options: Options hash.
         """
         opts = []
-        for key, value in options.iteritems():
+        for key, value in options.items():
             opt = '--%s'
             if len(key) == 1:
                 opt = '-%s'
