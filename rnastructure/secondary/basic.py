@@ -292,20 +292,12 @@ class Node(object):
             # outside the first Watson-Crick basepair, or
             # several stems on the same chain but no pair enclosing them
             return 'external'
-        if not self.children:
+        if not self.children or len(self.children) == 0:
             return 'hairpin'
         if len(self.children) == 1:
             return 'internal'
-        if len(self.children) == 2:
-            return 'J3'
-        if len(self.children) == 3:
-            return 'J4'
-        if len(self.children) == 4:
-            return 'J5'
-        if len(self.children) == 5:
-            return 'J6'
-        if len(self.children) == 6:
-            return 'J7'
+        if len(self.children) >= 2:
+            return 'J' + str(len(self.children)+1)
 
         raise ValueError("Unknown type of loop")
 
